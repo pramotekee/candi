@@ -38,17 +38,14 @@ if prompt:
             messages=[{"role": "user", "content": prompt}],
             max_tokens=2000
         )
-        # ให้ AI บอกชื่อรุ่นตัวเองในคำตอบเลย
-        print(response.model)
-        print(response.choices[0].message.content)
-
+        
+        # ดึงข้อมูลจาก response
+        model_name = response.model
+        reply = response.choices[0].message.content
+        
         # แสดงในแชท
         with st.chat_message("assistant"):
             st.write(f"**[Model: {model_name}]**")
-            st.write(reply)
-        reply = response.choices[0].message.content
-        
-        with st.chat_message("assistant"):
             st.write(reply)
         
         # บันทึกประวัติ

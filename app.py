@@ -38,6 +38,9 @@ if prompt:
             messages=[{"role": "user", "content": prompt}],
             max_tokens=2000
         )
+        print(response.model)
+        print(response.choices[0].message.content)
+        
         reply = response.choices[0].message.content
         
         with st.chat_message("assistant"):

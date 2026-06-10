@@ -28,7 +28,7 @@ except ImportError:
     st.sidebar.warning("⚠️ OCR ไม่พร้อมใช้งาน (ติดตั้ง pytesseract และ pdf2image ใน requirements.txt)")
 
 st.set_page_config(page_title="POPZILAR CHAT", page_icon="🤖")
-st.title("POPZILAR CHAT 📎 รองรับทุกไฟล์")
+st.title("POPZILAR TALK")
 
 # ตรวจ API Key
 if "DEEPSEEK_API_KEY" not in st.secrets:

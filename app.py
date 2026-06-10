@@ -151,7 +151,7 @@ for msg in st.session_state.messages:
         st.write(msg["content"])
 
 # ช่องพิมพ์
-prompt = st.chat_input("พิมพ์ข้อความ หรือถามเกี่ยวกับไฟล์...")
+prompt = st.chat_input("พิมพ์ข้อความ...")
 
 if prompt:
     with st.chat_message("user"):

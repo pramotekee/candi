@@ -52,7 +52,7 @@ if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.session_state.messages.append({"role": "assistant", "content": reply})
         
-        st.rerun()
+        # ไม่ต้อง st.rerun()
         
     except Exception as e:
         st.error(f"ผิดพลาด: {str(e)}")

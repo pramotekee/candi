@@ -45,7 +45,6 @@ if prompt:
         
         # แสดงในแชท
         with st.chat_message("assistant"):
-            st.write(f"**[Model: {model_name}]**")
             st.write(reply)
         
         # บันทึกประวัติ

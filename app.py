@@ -5,98 +5,130 @@ import io
 from PIL import Image
 
 st.set_page_config(page_title="DeepSeek V4 Chat", page_icon="🤖")
-st.title("🤖 DeepSeek V4 Chat (อ่านรูปได้)")
+# CSS สำหรับจัด layout ให้สวย
+st.markdown("""
+<style>
+    [data-testid="column"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .stFileUploader > div {
+        display: flex;
+        justify-content: center;
+    }
+    button[data-testid="baseButton-secondary"] {
+        background-color: transparent;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        font-size: 20px;
+        padding: 5px 12px;
+    }
+</style>
+""", unsafe_allow_html=True)
+st.title("🤖 DeepSeek V4 Chat - อ่านรูปได้")
 
-# ตรวจสอบ API Key
+# ตรวจ API Key
 if "DEEPSEEK_API_KEY" not in st.secrets:
-    st.error("กรุณาใส่ DEEPSEEK_API_KEY ใน Secrets ของ Streamlit")
+    st.error("กรุณาใส่ DEEPSEEK_API_KEY ใน Secrets")
     st.stop()
 
 client = OpenAI(
     api_key=st.secrets["DEEPSEEK_API_KEY"],
-    base_url="https://api.deepseek.com/v1"
+    base_url="https://api.deepseek.com/v1/v1"
 )
 
-# เริ่มต้นประวัติแชท
+# เริ่มต้น session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# เก็บรูปที่อัปโหลดชั่วคราว
-if "temp_image" not in st.session_state:
-    st.session_state.temp_image = None
-    st.session_state.temp_image_base64 = None
-
-# แสดงข้อความทั้งหมด
+# แสดงแชทย้อนหลัง
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        if "image" in msg and msg["image"]:
+        if msg.get("image"):
             st.image(msg["image"], width=200)
-        if "text" in msg:
-            st.markdown(msg["text"])
+        st.markdown(msg["content"])
 
-# ส่วนอัปโหลดรูป (ใช้ sidebar หรือ放在上面)
-with st.sidebar:
-    st.subheader("📷 อัปโหลดรูป")
-    uploaded_file = st.file_uploader("เลือกไฟล์รูป", type=["jpg", "jpeg", "png"])
+# สร้าง container สำหรับ input แบบมีปุ่ม +
+with st.container():
+    col1, col2 = st.columns([0.9, 0.1])
     
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="รูปที่คุณจะส่ง", width=200)
-        
-        # แปลงเป็น base64
-        buffered = io.BytesIO()
-        image.save(buffered, format="PNG")
-        img_base64 = base64.b64encode(buffered.getvalue()).decode()
-        st.session_state.temp_image = uploaded_file
-        st.session_state.temp_image_base64 = img_base64
-        st.success("✅ พร้อมส่งแล้ว! พิมพ์ข้อความด้านล่าง")
+    with col2:
+        # ปุ่ม + ไว้แนบรูป
+        uploaded_file = st.file_uploader(
+            "➕", 
+            type=["jpg", "jpeg", "png"],
+            label_visibility="collapsed",
+            key="uploader"
+        )
+    
+    with col1:
+        prompt = st.chat_input("พิมพ์ข้อความ...")
 
-# ช่องพิมพ์ข้อความ
-prompt = st.chat_input("พิมพ์คำถามเกี่ยวกับรูป (ถ้ามี) หรือถามอะไรก็ได้...")
+# ตรวจสอบว่ามีรูปที่เพิ่งอัปโหลดไหม
+if uploaded_file is not None:
+    # อ่านและแปลงรูป
+    image = Image.open(uploaded_file)
+    buffered = io.BytesIO()
+    image.save(buffered, format="PNG")
+    img_base64 = base64.b64encode(buffered.getvalue()).decode()
+    
+    # แจ้งว่ามีรูปแล้ว
+    st.success(f"✅ แนบรูป: {uploaded_file.name}")
+    
+    # เก็บรูปไว้ใน session
+    st.session_state.uploaded_image = uploaded_file
+    st.session_state.uploaded_image_base64 = img_base64
 
+# ส่งข้อความ
 if prompt:
-    # แสดงข้อความผู้ใช้
-    with st.chat_message("user"):
-        if st.session_state.temp_image_base64:
-            st.image(st.session_state.temp_image, width=200)
-        st.markdown(prompt)
-    
-    # เตรียมข้อมูลส่ง API
+    # สร้าง content สำหรับ API
     content = [{"type": "text", "text": prompt}]
     
-    if st.session_state.temp_image_base64:
+    # ถ้ามีรูปที่อัปโหลดไว้
+    if "uploaded_image_base64" in st.session_state and st.session_state.uploaded_image_base64:
         content.append({
             "type": "image_url",
-            "image_url": {"url": f"data:image/png;base64,{st.session_state.temp_image_base64}"}
+            "image_url": {
+                "url": f"data:image/png;base64,{st.session_state.uploaded_image_base64}"
+            }
         })
     
-    # บันทึกประวัติ
-    st.session_state.messages.append({
-        "role": "user",
-        "text": prompt,
-        "image": st.session_state.temp_image if st.session_state.temp_image_base64 else None
-    })
+    # แสดงข้อความผู้ใช้
+    with st.chat_message("user"):
+        if "uploaded_image" in st.session_state and st.session_state.uploaded_image:
+            st.image(st.session_state.uploaded_image, width=200)
+        st.markdown(prompt)
     
-    # เรียก API
+    # เรียก API (ใช้ DeepSeek รองรับรูป)
     try:
         response = client.chat.completions.create(
-            model="deepseek-v4-flash",
-            messages=[{"role": "user", "content": content}]
+            model="deepseek-chat",  # เปลี่ยนเป็น deepseek-chat เพราะรองรับ vision
+            messages=[{"role": "user", "content": content}],
+            max_tokens=2000
         )
         reply = response.choices[0].message.content
         
+        # แสดงคำตอบ
         with st.chat_message("assistant"):
             st.markdown(reply)
         
+        # บันทึกประวัติ
+        st.session_state.messages.append({
+            "role": "user",
+            "content": prompt,
+            "image": st.session_state.uploaded_image if "uploaded_image" in st.session_state else None
+        })
         st.session_state.messages.append({
             "role": "assistant",
-            "text": reply,
+            "content": reply,
             "image": None
         })
         
-        # ล้างรูป临时
-        st.session_state.temp_image = None
-        st.session_state.temp_image_base64 = None
+        # ล้างรูปที่อัปโหลด
+        if "uploaded_image" in st.session_state:
+            del st.session_state.uploaded_image
+            del st.session_state.uploaded_image_base64
+        
         st.rerun()
         
     except Exception as e:

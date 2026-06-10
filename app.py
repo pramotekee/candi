@@ -1,11 +1,16 @@
 import streamlit as st
 from openai import OpenAI
 import base64
-from PIL import Image
 import io
+from PIL import Image
 
-st.set_page_config(page_title="DeepSeek V4 Chat", page_icon="🤖")
-st.title("🤖 DeepSeek Chat (ถาม+อ่านรูป)")
+st.set_page_config(page_title="POPZILAR CHAT", page_icon="🤖")
+st.title("POPZILAR CHAT")
+
+# ตรวจ API Key
+if "DEEPSEEK_API_KEY" not in st.secrets:
+    st.error("กรุณาใส่ API Key ใน Secrets")
+    st.stop()
 
 client = OpenAI(
     api_key=st.secrets["DEEPSEEK_API_KEY"],
@@ -23,31 +28,37 @@ for msg in st.session_state.messages:
             st.image(msg["image"], width=200)
         st.write(msg["content"])
 
-# อัปโหลดรูป (อยู่ข้างบน แบบชัดๆ)
-uploaded_file = st.file_uploader("📷 แนบรูป (ถ้ามี)", type=["jpg", "png", "jpeg"])
+# ช่องอัปโหลดรูปและข้อความ
+col1, col2 = st.columns([1, 10])
 
-# ช่องพิมพ์ข้อความ
-prompt = st.chat_input("พิมพ์คำถาม...")
+with col1:
+    uploaded_file = st.file_uploader("📎", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
 
+with col2:
+    prompt = st.chat_input("พิมพ์ข้อความ...")
+
+# ถ้ามีการส่งข้อความ
 if prompt:
-    # เตรียมรูป base64
+    # แปลงรูป
     image_base64 = None
+    uploaded_img = None
+    
     if uploaded_file:
         img = Image.open(uploaded_file)
+        uploaded_img = uploaded_file
         buff = io.BytesIO()
         img.save(buff, format="PNG")
         image_base64 = base64.b64encode(buff.getvalue()).decode()
     
-    # แสดงข้อความ+รูปในแชท
+    # แสดงข้อความผู้ใช้
     with st.chat_message("user"):
-        if uploaded_file:
-            st.image(uploaded_file, width=200)
+        if uploaded_img:
+            st.image(uploaded_img, width=200)
         st.write(prompt)
     
     # เรียก API
     try:
         if image_base64:
-            # มีรูป -> ใช้ vision
             response = client.chat.completions.create(
                 model="deepseek-chat",
                 messages=[{
@@ -56,13 +67,14 @@ if prompt:
                         {"type": "text", "text": prompt},
                         {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}}
                     ]
-                }]
+                }],
+                max_tokens=2000
             )
         else:
-            # ไม่มีรูป -> แชทปกติ
             response = client.chat.completions.create(
                 model="deepseek-chat",
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=2000
             )
         
         reply = response.choices[0].message.content
@@ -70,11 +82,19 @@ if prompt:
         with st.chat_message("assistant"):
             st.write(reply)
         
-        # บันทึก
-        st.session_state.messages.append({"role": "user", "content": prompt, "image": uploaded_file})
-        st.session_state.messages.append({"role": "assistant", "content": reply})
+        # บันทึกประวัติ
+        st.session_state.messages.append({
+            "role": "user",
+            "content": prompt,
+            "image": uploaded_img
+        })
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": reply,
+            "image": None
+        })
         
         st.rerun()
         
     except Exception as e:
-        st.error(f"ข้อผิดพลาด: {e}")
+        st.error(f"ผิดพลาด: {str(e)}")

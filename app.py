@@ -22,64 +22,60 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # เก็บรูปที่อัปโหลดชั่วคราว
-if "uploaded_image" not in st.session_state:
-    st.session_state.uploaded_image = None
-    st.session_state.uploaded_image_data = None
+if "temp_image" not in st.session_state:
+    st.session_state.temp_image = None
+    st.session_state.temp_image_base64 = None
 
 # แสดงข้อความทั้งหมด
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        if msg["role"] == "user" and "image" in msg:
-            st.image(msg["image"], caption="รูปที่คุณส่ง", width=200)
-        st.markdown(msg["content"])
+        if "image" in msg and msg["image"]:
+            st.image(msg["image"], width=200)
+        if "text" in msg:
+            st.markdown(msg["text"])
 
-# ส่วนของ input แบบมีปุ่ม + (ใช้ columns เพื่อให้ดูเหมือนแชท)
-col1, col2 = st.columns([6, 1])
-
-with col1:
-    prompt = st.chat_input("พิมพ์ข้อความ หรือ กด + เพื่อแนบรูป")
-
-with col2:
-    # ปุ่ม + สำหรับอัปโหลดรูป
-    uploaded_file = st.file_uploader(
-        "📎", 
-        type=["jpg", "jpeg", "png"],
-        label_visibility="collapsed",
-        key="image_uploader"
-    )
+# ส่วนอัปโหลดรูป (ใช้ sidebar หรือ放在上面)
+with st.sidebar:
+    st.subheader("📷 อัปโหลดรูป")
+    uploaded_file = st.file_uploader("เลือกไฟล์รูป", type=["jpg", "jpeg", "png"])
     
     if uploaded_file is not None:
-        # แปลงรูปเป็น base64
         image = Image.open(uploaded_file)
+        st.image(image, caption="รูปที่คุณจะส่ง", width=200)
+        
+        # แปลงเป็น base64
         buffered = io.BytesIO()
         image.save(buffered, format="PNG")
         img_base64 = base64.b64encode(buffered.getvalue()).decode()
-        st.session_state.uploaded_image = uploaded_file
-        st.session_state.uploaded_image_data = img_base64
-        st.success("✅ รูปพร้อมใช้งาน พิมพ์ข้อความแล้วส่งได้เลย")
+        st.session_state.temp_image = uploaded_file
+        st.session_state.temp_image_base64 = img_base64
+        st.success("✅ พร้อมส่งแล้ว! พิมพ์ข้อความด้านล่าง")
 
-# เวลาส่งข้อความ
+# ช่องพิมพ์ข้อความ
+prompt = st.chat_input("พิมพ์คำถามเกี่ยวกับรูป (ถ้ามี) หรือถามอะไรก็ได้...")
+
 if prompt:
     # แสดงข้อความผู้ใช้
     with st.chat_message("user"):
-        if st.session_state.uploaded_image_data:
-            st.image(st.session_state.uploaded_image, caption="รูปที่คุณส่ง", width=200)
+        if st.session_state.temp_image_base64:
+            st.image(st.session_state.temp_image, width=200)
         st.markdown(prompt)
     
-    # เตรียม content สำหรับ API
+    # เตรียมข้อมูลส่ง API
     content = [{"type": "text", "text": prompt}]
     
-    if st.session_state.uploaded_image_data:
+    if st.session_state.temp_image_base64:
         content.append({
             "type": "image_url",
-            "image_url": {"url": f"data:image/png;base64,{st.session_state.uploaded_image_data}"}
+            "image_url": {"url": f"data:image/png;base64,{st.session_state.temp_image_base64}"}
         })
     
-    # บันทึกประวัติผู้ใช้
-    user_msg = {"role": "user", "content": prompt}
-    if st.session_state.uploaded_image_data:
-        user_msg["image"] = st.session_state.uploaded_image
-    st.session_state.messages.append(user_msg)
+    # บันทึกประวัติ
+    st.session_state.messages.append({
+        "role": "user",
+        "text": prompt,
+        "image": st.session_state.temp_image if st.session_state.temp_image_base64 else None
+    })
     
     # เรียก API
     try:
@@ -89,17 +85,19 @@ if prompt:
         )
         reply = response.choices[0].message.content
         
-        # แสดงคำตอบ
         with st.chat_message("assistant"):
             st.markdown(reply)
         
-        # บันทึกประวัติ
-        st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.session_state.messages.append({
+            "role": "assistant",
+            "text": reply,
+            "image": None
+        })
         
-        # ล้างรูปที่อัปโหลด (หลังส่งแล้ว)
-        st.session_state.uploaded_image = None
-        st.session_state.uploaded_image_data = None
+        # ล้างรูป临时
+        st.session_state.temp_image = None
+        st.session_state.temp_image_base64 = None
         st.rerun()
         
     except Exception as e:
-        st.error(f"เกิดข้อผิดพลาด: {str(e)}")
+        st.error(f"Error: {str(e)}")

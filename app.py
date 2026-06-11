@@ -27,6 +27,9 @@ c.execute('''
 conn.commit()
 
 # Helper
+def format_date_display(date_obj):
+    return date_obj.strftime("%d/%m/%Y")
+
 def get_today_str():
     return date.today().isoformat()
 
@@ -40,12 +43,12 @@ def get_fyi():
 
 def get_country_province_list():
     return {
-        "Thailand": ["Bangkok", "Chiang Mai", "Phuket", "Khon Kaen"],
-        "Japan": ["Tokyo", "Osaka", "Kyoto"],
-        "USA": ["New York", "Los Angeles", "Chicago"],
-        "UK": ["London", "Manchester", "Liverpool"],
-        "France": ["Paris", "Lyon", "Marseille"],
-        "Germany": ["Berlin", "Munich", "Hamburg"]
+        "Thailand": ["Bangkok", "Chiang Mai", "Phuket", "Khon Kaen", "Pattaya"],
+        "Japan": ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Hokkaido"],
+        "USA": ["New York", "Los Angeles", "Chicago", "Houston", "Miami"],
+        "UK": ["London", "Manchester", "Liverpool", "Edinburgh", "Bristol"],
+        "France": ["Paris", "Lyon", "Marseille", "Nice", "Bordeaux"],
+        "Germany": ["Berlin", "Munich", "Hamburg", "Cologne", "Frankfurt"]
     }
 
 day_colors = {
@@ -58,84 +61,86 @@ day_colors = {
     6: "#F7C6C6"   # Sun
 }
 
-# Initialize session state
 if "selected_date" not in st.session_state:
     st.session_state.selected_date = None
 
-# Layout columns
-left_col, right_col = st.columns([2, 1])
+# --------------------------------------
+# HEADER + DASHBOARD (ย้ายขึ้นบน)
+# --------------------------------------
+st.title("📔 PEOPLE DAIRY")
+st.caption(f"🧠 FYI : {get_fyi()}")
 
-with left_col:
-    st.title("📔 PEOPLE DAIRY")
-    st.caption(f"🧠 FYI : {get_fyi()}")
+col_dash1, col_dash2, col_dash3 = st.columns(3)
+df_all = pd.read_sql("SELECT country, province FROM entries", conn)
+total_stories = len(df_all)
 
-    # Calendar
-    now = datetime.now()
-    year, month = now.year, now.month
-    cal = calendar.monthcalendar(year, month)
-    today_date = date.today()
+with col_dash1:
+    st.metric("📚 Total Stories", total_stories)
+with col_dash2:
+    unique_countries = df_all['country'].nunique() if not df_all.empty else 0
+    st.metric("🌍 Countries", unique_countries)
+with col_dash3:
+    unique_provinces = df_all['province'].nunique() if not df_all.empty else 0
+    st.metric("📍 Places", unique_provinces)
 
-    # Weekday headers
-    headers = st.columns(7)
-    for i, day_name in enumerate(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]):
-        headers[i].markdown(f"**{day_name}**")
-
-    # Display calendar grid
-    for week in cal:
-        cols = st.columns(7)
-        for i, day in enumerate(week):
-            if day == 0:
-                cols[i].write("")
-            else:
-                current_date = date(year, month, day)
-                is_future = current_date > today_date
-                day_color = day_colors.get(i, "#CCCCCC")
-                
-                if is_future:
-                    cols[i].markdown(
-                        f"<div style='text-align: center; padding: 10px; background-color: #E0E0E0; border-radius: 50%; width: 50px; margin: auto; color: gray;'>{day}</div>",
-                        unsafe_allow_html=True
-                    )
-                else:
-                    # ใช้ markdown แทน button
-                    if cols[i].markdown(
-                        f"<div style='text-align: center; padding: 10px; background-color: {day_color}; border-radius: 50%; width: 50px; margin: auto; cursor: pointer;'>{'✨ ' if current_date == today_date else ''}{day}</div>",
-                        unsafe_allow_html=True
-                    ):
-                        # Streamlit markdown ไม่มี onclick แบบนี้ได้
-                        pass
-                    # ใช้ button จริงข้างล่างแทน
-                    button_label = f"{day}"
-                    if current_date == today_date:
-                        button_label = f"✨ {day}"
-                    if cols[i].button(button_label, key=f"day_{year}_{month}_{day}", use_container_width=True):
-                        st.session_state.selected_date = current_date
-                        st.rerun()
-
-with right_col:
-    st.subheader("📊 Mini Dashboard")
-    df_all = pd.read_sql("SELECT country, province FROM entries", conn)
-    if not df_all.empty:
+if not df_all.empty:
+    with st.expander("🌍 Echoes from the World (Top Countries)"):
         country_stats = df_all['country'].value_counts()
-        province_stats = df_all['province'].value_counts()
-        st.markdown("### 🌍 Countries")
         for ctry, cnt in country_stats.items():
-            percent = (cnt / len(df_all)) * 100
+            percent = (cnt / total_stories) * 100
             st.markdown(f"{ctry} : {cnt} stories ({percent:.1f}%)")
-        st.markdown("### 📍 Provinces")
-        for prov, cnt in province_stats.items():
-            st.markdown(f"{prov} : {cnt} stories")
-    else:
-        st.info("No location data yet")
 
-# Form Section
+st.divider()
+
+# --------------------------------------
+# ปฏิทิน Grid (responsive)
+# --------------------------------------
+now = datetime.now()
+year, month = now.year, now.month
+cal = calendar.monthcalendar(year, month)
+today_date = date.today()
+
+# Headers
+cols_header = st.columns(7)
+for i, day_name in enumerate(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]):
+    cols_header[i].markdown(f"**{day_name}**")
+
+# Calendar grid
+for week in cal:
+    cols = st.columns(7)
+    for i, day in enumerate(week):
+        if day == 0:
+            cols[i].write("")
+        else:
+            current_date = date(year, month, day)
+            is_future = current_date > today_date
+            day_color = day_colors.get(i, "#CCCCCC")
+            date_label = format_date_display(current_date)
+            
+            if is_future:
+                cols[i].markdown(
+                    f"<div style='text-align: center; background-color: #E0E0E0; border-radius: 50%; width: 60px; height: 60px; line-height: 60px; margin: auto; color: gray;'>{day}<br><small style='font-size: 10px;'>{date_label}</small></div>",
+                    unsafe_allow_html=True
+                )
+            else:
+                button_label = f"{day}\n{date_label}"
+                if current_date == today_date:
+                    button_label = f"✨ {day}\n{date_label}"
+                if cols[i].button(button_label, key=f"day_{year}_{month}_{day}", use_container_width=True):
+                    st.session_state.selected_date = current_date
+                    st.rerun()
+
+# --------------------------------------
+# ฟอร์มบันทึก (เมื่อกดวันที่)
+# --------------------------------------
 if st.session_state.selected_date:
     selected_date = st.session_state.selected_date
     with st.container():
         st.divider()
-        st.subheader(f"📝 {selected_date.isoformat()}")
+        st.subheader(f"📝 {format_date_display(selected_date)}")
         c.execute("SELECT * FROM entries WHERE entry_date=?", (selected_date.isoformat(),))
         old = c.fetchone()
+        
         if selected_date < today_date and old:
             st.info("🔒 Past date: View only mode (PRO feature coming)")
             with st.expander("📄 Read Story"):
@@ -153,17 +158,15 @@ if st.session_state.selected_date:
                 st.caption(f"Characters {story_len}/500")
                 
                 country_list = list(get_country_province_list().keys())
-                selected_country = st.selectbox("4️⃣ Country", ["Select"] + country_list)
+                selected_country = st.selectbox("4️⃣ Country", country_list)
                 provinces = get_country_province_list().get(selected_country, [])
-                selected_province = st.selectbox("Province", ["Select"] + provinces)
+                selected_province = st.selectbox("Province", provinces)
                 
                 uploaded_img = st.file_uploader("🖼️ Add Image", type=["png", "jpg", "jpeg"])
                 saved = st.form_submit_button("💾 SAVE")
                 if saved:
                     if not name or not title or not story:
                         st.error("Please fill Name, Title, Story")
-                    elif selected_country == "Select" or selected_province == "Select":
-                        st.error("Please select Country and Province")
                     else:
                         img_path = ""
                         if uploaded_img:
@@ -183,7 +186,9 @@ if st.session_state.selected_date:
                         st.session_state.selected_date = None
                         st.rerun()
 
-# Feed
+# --------------------------------------
+# Latest Stories Feed
+# --------------------------------------
 st.divider()
 st.subheader("📌 Latest Stories")
 search_term = st.text_input("🔍 Search by Name, Title, or Story")

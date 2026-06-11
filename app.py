@@ -5,7 +5,6 @@ import calendar
 from datetime import datetime, date
 import hashlib
 import os
-import plotly.express as px
 
 st.set_page_config(page_title="PEOPLE DAIRY", layout="wide")
 
@@ -59,6 +58,10 @@ day_colors = {
     6: "#F7C6C6"   # Sun
 }
 
+# Initialize session state
+if "selected_date" not in st.session_state:
+    st.session_state.selected_date = None
+
 # Layout columns
 left_col, right_col = st.columns([2, 1])
 
@@ -73,11 +76,11 @@ with left_col:
     today_date = date.today()
 
     # Weekday headers
-    week_header = st.columns(7)
+    headers = st.columns(7)
     for i, day_name in enumerate(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]):
-        week_header[i].markdown(f"**{day_name}**")
+        headers[i].markdown(f"**{day_name}**")
 
-    selected_date = None
+    # Display calendar grid
     for week in cal:
         cols = st.columns(7)
         for i, day in enumerate(week):
@@ -86,16 +89,28 @@ with left_col:
             else:
                 current_date = date(year, month, day)
                 is_future = current_date > today_date
-                is_today = current_date == today_date
                 day_color = day_colors.get(i, "#CCCCCC")
+                
                 if is_future:
-                    cols[i].markdown(f"<div style='text-align: center; padding: 12px 0; background-color: #E0E0E0; border-radius: 50%; width: 50px; margin: auto; color: gray;'>{day}</div>", unsafe_allow_html=True)
-                elif is_today:
-                    if cols[i].button(f"<div style='background-color: {day_color}; border-radius: 50%; width: 50px; margin: auto; text-align: center; padding: 12px 0; font-weight: bold;'>✨ {day}</div>", key=f"today_{day}", unsafe_allow_html=True):
-                        selected_date = current_date
+                    cols[i].markdown(
+                        f"<div style='text-align: center; padding: 10px; background-color: #E0E0E0; border-radius: 50%; width: 50px; margin: auto; color: gray;'>{day}</div>",
+                        unsafe_allow_html=True
+                    )
                 else:
-                    if cols[i].button(f"<div style='background-color: {day_color}; border-radius: 50%; width: 50px; margin: auto; text-align: center; padding: 12px 0;'>{day}</div>", key=f"past_{day}", unsafe_allow_html=True):
-                        selected_date = current_date
+                    # ใช้ markdown แทน button
+                    if cols[i].markdown(
+                        f"<div style='text-align: center; padding: 10px; background-color: {day_color}; border-radius: 50%; width: 50px; margin: auto; cursor: pointer;'>{'✨ ' if current_date == today_date else ''}{day}</div>",
+                        unsafe_allow_html=True
+                    ):
+                        # Streamlit markdown ไม่มี onclick แบบนี้ได้
+                        pass
+                    # ใช้ button จริงข้างล่างแทน
+                    button_label = f"{day}"
+                    if current_date == today_date:
+                        button_label = f"✨ {day}"
+                    if cols[i].button(button_label, key=f"day_{year}_{month}_{day}", use_container_width=True):
+                        st.session_state.selected_date = current_date
+                        st.rerun()
 
 with right_col:
     st.subheader("📊 Mini Dashboard")
@@ -114,7 +129,8 @@ with right_col:
         st.info("No location data yet")
 
 # Form Section
-if selected_date:
+if st.session_state.selected_date:
+    selected_date = st.session_state.selected_date
     with st.container():
         st.divider()
         st.subheader(f"📝 {selected_date.isoformat()}")
@@ -135,14 +151,12 @@ if selected_date:
                 story = st.text_area("3️⃣ Story", height=150)
                 story_len = len(story)
                 st.caption(f"Characters {story_len}/500")
-                if story_len > 500:
-                    st.warning("Story exceeds 500 characters (PRO unlimited later)")
-
+                
                 country_list = list(get_country_province_list().keys())
                 selected_country = st.selectbox("4️⃣ Country", ["Select"] + country_list)
                 provinces = get_country_province_list().get(selected_country, [])
                 selected_province = st.selectbox("Province", ["Select"] + provinces)
-
+                
                 uploaded_img = st.file_uploader("🖼️ Add Image", type=["png", "jpg", "jpeg"])
                 saved = st.form_submit_button("💾 SAVE")
                 if saved:
@@ -166,6 +180,7 @@ if selected_date:
                         ''', (selected_date.isoformat(), name, title, story, selected_country, selected_province, img_path, datetime.now().isoformat()))
                         conn.commit()
                         st.success("✅ Saved successfully")
+                        st.session_state.selected_date = None
                         st.rerun()
 
 # Feed
@@ -192,7 +207,6 @@ else:
                 st.markdown(f"### {row['title']}")
                 st.markdown(f"{row['story'][:200]}...")
             with col2:
-                share_url = f"?id={row['id']}"
                 if st.button(f"🔗 Share", key=f"share_{row['id']}"):
-                    st.code(f"http://localhost:8501{share_url}", language="text")
+                    st.code(f"https://people-dairy.streamlit.app/?id={row['id']}", language="text")
             st.divider()

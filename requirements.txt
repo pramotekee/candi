@@ -1,8 +1,4 @@
 streamlit
-openai
-PyPDF2
-python-docx
 pandas
-pillow
-pdf2image
-pytesseract
+plotly
+Pillow

@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candi — สร้างโปรไฟล์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --accent: #1D1D6E;
+    --accent-mid: #3A3A8C;
+    --text-primary: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --tag-bg: #E8E8ED;
+    --border: #D2D2D7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    padding: 32px 20px;
+  }
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .sub {
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    font-size: 14px;
+  }
+  .form-group {
+    margin-bottom: 22px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .form-group label .required {
+    color: #e74c3c;
+    margin-left: 2px;
+  }
+  .form-group small {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-mid);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  .char-counter {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .form-row .form-group {
+    flex: 1;
+    min-width: 140px;
+  }
+  .dynamic-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .dynamic-field-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .dynamic-field-item input {
+    flex: 1;
+  }
+  .dynamic-field-item button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0 8px;
+  }
+  .add-field-btn {
+    background: var(--tag-bg);
+    border: none;
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 400;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .checkbox-group input {
+    width: auto;
+    margin: 0;
+  }
+  .zone-btn {
+    background: var(--tag-bg);
+    border: none;
+    border-radius: 30px;
+    padding: 0 16px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-submit {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 40px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 16px;
+  }
+  .btn-submit:hover {
+    background: var(--accent-mid);
+  }
+  .error-msg {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+  }
+
+  /* Popup */
+  .popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .popup-overlay.open {
+    display: flex;
+  }
+  .popup {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 32px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: fadeIn 0.2s;
+  }
+  .popup h3 {
+    margin-bottom: 16px;
+  }
+  .code-box {
+    background: var(--tag-bg);
+    padding: 16px;
+    border-radius: 16px;
+    font-family: monospace;
+    font-size: 24px;
+    letter-spacing: 2px;
+    margin: 16px 0;
+  }
+  .copy-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    cursor: pointer;
+    margin-right: 12px;
+  }
+  .home-btn {
+    background: var(--tag-bg);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    cursor: pointer;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  hr {
+    margin: 20px 0;
+    border-color: var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>สร้างโปรไฟล์ใหม่</h1>
+    <div class="sub">กรอกข้อมูลให้ครบทุกช่องที่มี *</div>
+
+    <form id="createForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>ชื่อ <span class="required">*</span></label>
+          <input type="text" id="firstname" required>
+        </div>
+        <div class="form-group">
+          <label>นามสกุล <span class="required">*</span></label>
+          <input type="text" id="lastname" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>รูปโปรไฟล์ (URL) <span class="required">*</span></label>
+        <input type="url" id="photo" placeholder="https://drive.google.com/thumbnail?id=..." required>
+        <div class="error-msg" id="photoError"></div>
+        <small>⚠️ ต้องเป็นลิงก์ Google Drive ที่ตั้งค่า Anyone with the link can view</small>
+      </div>
+
+      <div class="form-group">
+        <label>What I Do Best <span class="required">*</span></label>
+        <textarea id="ido" maxlength="200" rows="2" required></textarea>
+        <div class="char-counter"><span id="idoCounter">0</span>/200</div>
+      </div>
+
+      <div class="form-group">
+        <label>คำอธิบายเพิ่มเติม <span class="required">*</span></label>
+        <textarea id="desc" maxlength="500" rows="3" required></textarea>
+        <div class="char-counter"><span id="descCounter">0</span>/500</div>
+      </div>
+
+      <div class="form-group">
+        <label>Capability (เลือกได้หลายหมวด) <span class="required">*</span></label>
+        <div class="checkbox-group" id="capabilityGroup">
+          <label><input type="checkbox" value="System Architect"> System Architect</label>
+          <label><input type="checkbox" value="Conversation Builder"> Conversation Builder</label>
+          <label><input type="checkbox" value="Revenue Generator"> Revenue Generator</label>
+          <label><input type="checkbox" value="People Connector"> People Connector</label>
+          <label><input type="checkbox" value="Money Guardian"> Money Guardian</label>
+          <label><input type="checkbox" value="Make Things Beauty"> Make Things Beauty</label>
+          <label><input type="checkbox" value="Flow Planner"> Flow Planner</label>
+          <label><input type="checkbox" value="Trust Keeper"> Trust Keeper</label>
+          <label><input type="checkbox" value="Pattern Hunter"> Pattern Hunter</label>
+          <label><input type="checkbox" value="Hands-on Maker"> Hands-on Maker</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ประสบการณ์ <span class="required">*</span></label>
+        <input type="text" id="exp" placeholder="เช่น 3 ปี, จบใหม่" required>
+      </div>
+
+      <div class="form-group">
+        <label>ทักษะ (Skill Tags) <span class="required">*</span></label>
+        <div id="skillContainer" class="dynamic-field-group">
+          <div class="dynamic-field-item">
+            <input type="text" placeholder="เช่น Python" class="skill-input">
+            <button type="button" class="remove-skill" style="display:none;">✕</button>
+          </div>
+        </div>
+        <button type="button" class="add-field-btn" id="addSkillBtn">+ เพิ่มทักษะ</button>
+      </div>
+
+      <div class="form-group">
+        <label>ภาษา <span class="required">*</span></label>
+        <div id="langContainer" class="dynamic-field-group">
+          <div class="dynamic-field-item">
+            <input type="text" placeholder="เช่น ไทย" class="lang-input">
+            <button type="button" class="remove-lang" style="display:none;">✕</button>
+          </div>
+        </div>
+        <button type="button" class="add-field-btn" id="addLangBtn">+ เพิ่มภาษา</button>
+      </div>
+
+      <div class="form-group">
+        <label>รูปแบบงาน <span class="required">*</span></label>
+        <div class="checkbox-group" id="workTypeGroup">
+          <label><input type="checkbox" value="Full-time"> Full-time</label>
+          <label><input type="checkbox" value="Freelance"> Freelance</label>
+          <label><input type="checkbox" value="Hybrid"> Hybrid</label>
+          <label><input type="checkbox" value="Online"> Online</label>
+          <label><input type="checkbox" value="Onsite"> Onsite</label>
+          <label><input type="checkbox" value="Contract"> Contract</label>
+          <label><input type="checkbox" value="Remote"> Remote</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>เงินเดือนที่คาดหวัง <span class="required">*</span></label>
+        <select id="salary" required>
+          <option value="">เลือกช่วงเงินเดือน</option>
+          <option>ต่ำกว่า 20,000</option>
+          <option>20,000 - 30,000</option>
+          <option>30,001 - 40,000</option>
+          <option>40,001 - 50,000</option>
+          <option>50,001 - 70,000</option>
+          <option>70,001 - 90,000</option>
+          <option>90,001 - 120,000</option>
+          <option>120,001 ขึ้นไป</option>
+          <option>Negotiable</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>วันที่พร้อมเริ่มงาน <span class="required">*</span></label>
+        <input type="text" id="available" placeholder="เช่น พร้อมทันที, 2 สัปดาห์" required>
+      </div>
+
+      <div class="form-group">
+        <label>พื้นที่ทำงาน (Work zone) <span class="required">*</span></label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="zone" placeholder="เช่น สีลม, สาทร, บางนา" style="flex:1" required>
+          <button type="button" class="zone-btn" id="allZoneBtn">📍 รับทุกเขตในกทม.</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>LINE ID</label>
+        <input type="text" id="line" placeholder="@username">
+      </div>
+
+      <div class="form-group">
+        <label>เบอร์โทรศัพท์</label>
+        <input type="tel" id="phone" placeholder="081-234-5678">
+      </div>
+
+      <div class="form-group">
+        <label>อีเมล</label>
+        <input type="email" id="email">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Instagram</label>
+          <input type="text" id="ig" placeholder="username (ไม่ต้องใส่ @)">
+        </div>
+        <div class="form-group">
+          <label>TikTok</label>
+          <input type="text" id="tt" placeholder="username (ไม่ต้องใส่ @)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Resume (URL) <span class="required">*</span></label>
+        <input type="url" id="resume" placeholder="https://drive.google.com/..." required>
+        <div class="error-msg" id="resumeError"></div>
+      </div>
+
+      <button type="submit" class="btn-submit">สร้างโปรไฟล์</button>
+    </form>
+  </div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup">
+    <h3>🎉 สร้างโปรไฟล์สำเร็จ!</h3>
+    <p>รหัสแก้ไขของคุณคือ</p>
+    <div class="code-box" id="editCodeDisplay"></div>
+    <p style="font-size:12px;">⚠️ กรุณาบันทึกรหัสนี้ไว้ หากหายจะไม่สามารถแก้ไขข้อมูลได้</p>
+    <button class="copy-btn" id="copyCodeBtn">📋 คัดลอกรหัส</button>
+    <button class="home-btn" id="backHomeBtn">กลับหน้าหลัก</button>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBSKtA-RW4vy7HPqFairWgDHyG-1s2PkjpKWCtR_yc5anTt2AxaOz_hIaA96U27c0U/exec';
+  // ─────────────────────────────────────────────
+  // DYNAMIC FIELDS
+  // ─────────────────────────────────────────────
+  function updateRemoveButtons() {
+    const skillItems = document.querySelectorAll('#skillContainer .dynamic-field-item');
+    skillItems.forEach((item, i) => {
+      const btn = item.querySelector('.remove-skill');
+      if (btn) btn.style.display = skillItems.length > 1 ? 'inline-block' : 'none';
+    });
+    const langItems = document.querySelectorAll('#langContainer .dynamic-field-item');
+    langItems.forEach((item, i) => {
+      const btn = item.querySelector('.remove-lang');
+      if (btn) btn.style.display = langItems.length > 1 ? 'inline-block' : 'none';
+    });
+  }
+
+  document.getElementById('addSkillBtn')?.addEventListener('click', () => {
+    const container = document.getElementById('skillContainer');
+    const div = document.createElement('div');
+    div.className = 'dynamic-field-item';
+    div.innerHTML = `<input type="text" placeholder="เช่น JavaScript" class="skill-input"><button type="button" class="remove-skill">✕</button>`;
+    container.appendChild(div);
+    div.querySelector('.remove-skill').addEventListener('click', () => {
+      div.remove();
+      updateRemoveButtons();
+    });
+    updateRemoveButtons();
+  });
+
+  document.getElementById('addLangBtn')?.addEventListener('click', () => {
+    const container = document.getElementById('langContainer');
+    const div = document.createElement('div');
+    div.className = 'dynamic-field-item';
+    div.innerHTML = `<input type="text" placeholder="เช่น อังกฤษ" class="lang-input"><button type="button" class="remove-lang">✕</button>`;
+    container.appendChild(div);
+    div.querySelector('.remove-lang').addEventListener('click', () => {
+      div.remove();
+      updateRemoveButtons();
+    });
+    updateRemoveButtons();
+  });
+
+  document.querySelectorAll('.remove-skill').forEach(btn => btn.addEventListener('click', function() {
+    this.closest('.dynamic-field-item')?.remove();
+    updateRemoveButtons();
+  }));
+  document.querySelectorAll('.remove-lang').forEach(btn => btn.addEventListener('click', function() {
+    this.closest('.dynamic-field-item')?.remove();
+    updateRemoveButtons();
+  }));
+  updateRemoveButtons();
+
+  // zone button
+  document.getElementById('allZoneBtn')?.addEventListener('click', () => {
+    document.getElementById('zone').value = 'กทม. (ทุกเขต)';
+  });
+
+  // counters
+  const idoField = document.getElementById('ido');
+  const descField = document.getElementById('desc');
+  if (idoField) idoField.addEventListener('input', () => {
+    document.getElementById('idoCounter').textContent = idoField.value.length;
+  });
+  if (descField) descField.addEventListener('input', () => {
+    document.getElementById('descCounter').textContent = descField.value.length;
+  });
+
+  // validate URL
+  function isValidUrl(url) {
+    if (!url) return true;
+    return url.startsWith('http://') || url.startsWith('https://');
+  }
+
+  function showFieldError(elementId, msg) {
+    const err = document.getElementById(elementId);
+    if (err) {
+      err.textContent = msg;
+      err.style.display = 'block';
+      setTimeout(() => err.style.display = 'none', 4000);
+    }
+  }
+
+  // generate edit code
+  function generateEditCode() {
+    const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return code;
+  }
+
+  // submit form
+  document.getElementById('createForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const firstname = document.getElementById('firstname').value.trim();
+    const lastname = document.getElementById('lastname').value.trim();
+    const photo = document.getElementById('photo').value.trim();
+    const ido = document.getElementById('ido').value.trim();
+    const desc = document.getElementById('desc').value.trim();
+    const exp = document.getElementById('exp').value.trim();
+    const salary = document.getElementById('salary').value;
+    const available = document.getElementById('available').value.trim();
+    const zone = document.getElementById('zone').value.trim();
+    const line = document.getElementById('line').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const ig = document.getElementById('ig').value.trim();
+    const tt = document.getElementById('tt').value.trim();
+    const resume = document.getElementById('resume').value.trim();
+
+    const selectedCaps = Array.from(document.querySelectorAll('#capabilityGroup input:checked')).map(cb => cb.value);
+    const selectedWorkTypes = Array.from(document.querySelectorAll('#workTypeGroup input:checked')).map(cb => cb.value);
+
+    const skillTags = Array.from(document.querySelectorAll('#skillContainer .skill-input')).map(inp => inp.value.trim()).filter(v => v);
+    const languages = Array.from(document.querySelectorAll('#langContainer .lang-input')).map(inp => inp.value.trim()).filter(v => v);
+
+    if (!firstname || !lastname || !photo || !ido || !desc || !exp || !salary || !available || !zone || !resume) {
+      alert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *');
+      return;
+    }
+    if (selectedCaps.length === 0) {
+      alert('กรุณาเลือก Capability อย่างน้อย 1 หมวด');
+      return;
+    }
+    if (selectedWorkTypes.length === 0) {
+      alert('กรุณาเลือกรูปแบบงานอย่างน้อย 1 แบบ');
+      return;
+    }
+    if (skillTags.length === 0) {
+      alert('กรุณากรอกทักษะอย่างน้อย 1 อย่าง');
+      return;
+    }
+    if (languages.length === 0) {
+      alert('กรุณากรอกภาษาอย่างน้อย 1 ภาษา');
+      return;
+    }
+    if (!isValidUrl(photo)) {
+      showFieldError('photoError', 'URL รูปภาพไม่ถูกต้อง');
+      return;
+    }
+    if (!isValidUrl(resume)) {
+      showFieldError('resumeError', 'URL Resume ไม่ถูกต้อง');
+      return;
+    }
+
+    const instagramUrl = ig ? `https://instagram.com/${ig.replace('@', '')}` : '';
+    const tiktokUrl = tt ? `https://tiktok.com/@${tt.replace('@', '')}` : '';
+
+    const editCode = generateEditCode();
+
+    const payload = {
+      action: 'create',
+      firstname, lastname,
+      photo_id: photo,
+      i_do_good: ido,
+      description: desc,
+      purpose_category: selectedCaps.join(', '),
+      experience: exp,
+      skill_tags: skillTags.join(', '),
+      language: languages.join(', '),
+      work_type: selectedWorkTypes.join(', '),
+      expected_salary: salary,
+      available_date: available,
+      work_zone: zone,
+      contact_line: line,
+      contact_phone: phone,
+      contact_email: email,
+      instagram: instagramUrl,
+      tiktok: tiktokUrl,
+      resume: resume,
+      edit_code: editCode,
+      status: 'TRUE'
+    };
+
+    console.log('Sending payload:', payload);
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+  
+      // เนื่องจาก mode: 'no-cors' จะอ่าน response ไม่ได้
+      // ให้แสดง Popup ทันที (สมมติว่าสำเร็จ)
+      document.getElementById('editCodeDisplay').textContent = editCode;
+      document.getElementById('popupOverlay').classList.add('open');
+  
+      document.getElementById('copyCodeBtn').onclick = () => {
+        navigator.clipboard.writeText(editCode);
+        alert('คัดลอกรหัสแล้ว');
+      };
+      document.getElementById('backHomeBtn').onclick = () => {
+        window.location.href = 'index.html';
+      };
+  
+    } catch (err) {
+      alert('เกิดข้อผิดพลาด: ' + err.message);
+    }
+
+    // TODO: ส่งไป Google Apps Script (จะแยกส่งทีหลัง)
+    // แสดง Popup
+    document.getElementById('editCodeDisplay').textContent = editCode;
+    document.getElementById('popupOverlay').classList.add('open');
+
+    // ปุ่ม copy
+    document.getElementById('copyCodeBtn').onclick = () => {
+      navigator.clipboard.writeText(editCode);
+      alert('คัดลอกรหัสแล้ว');
+    };
+    document.getElementById('backHomeBtn').onclick = () => {
+      window.location.href = 'index.html';
+    };
+  });
+</script>
+</body>
+</html>

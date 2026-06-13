@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candi — แก้ไข/ลบโปรไฟล์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --accent: #1D1D6E;
+    --accent-mid: #3A3A8C;
+    --text-primary: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --tag-bg: #E8E8ED;
+    --border: #D2D2D7;
+    --error: #e74c3c;
+    --success: #2ecc71;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    padding: 32px 20px;
+  }
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--surface);
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .sub {
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    font-size: 14px;
+  }
+  .search-section {
+    background: var(--tag-bg);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .form-group {
+    margin-bottom: 18px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .form-group label .required {
+    color: var(--error);
+    margin-left: 2px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-mid);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+  }
+  .btn-primary:hover {
+    background: var(--accent-mid);
+  }
+  .btn-danger {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-secondary {
+    background: var(--tag-bg);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .form-row .form-group {
+    flex: 1;
+    min-width: 140px;
+  }
+  .dynamic-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .dynamic-field-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .dynamic-field-item input {
+    flex: 1;
+  }
+  .dynamic-field-item button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0 8px;
+  }
+  .add-field-btn {
+    background: var(--tag-bg);
+    border: none;
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 400;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .checkbox-group input {
+    width: auto;
+    margin: 0;
+  }
+  .alert {
+    padding: 12px 16px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .alert-error {
+    background: #fdecea;
+    color: var(--error);
+    border-left: 4px solid var(--error);
+  }
+  .alert-success {
+    background: #e8f8f0;
+    color: var(--success);
+    border-left: 4px solid var(--success);
+  }
+  .edit-section {
+    display: none;
+  }
+  .edit-section.show {
+    display: block;
+  }
+  .button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: flex-end;
+  }
+  hr {
+    margin: 20px 0;
+    border-color: var(--border);
+  }
+  .char-counter {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .zone-btn {
+    background: var(--tag-bg);
+    border: none;
+    border-radius: 30px;
+    padding: 0 16px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>✏️ แก้ไข / ลบโปรไฟล์</h1>
+    <div class="sub">กรอกรหัสแก้ไข + ชื่อ + นามสกุล เพื่อค้นหาข้อมูลของคุณ</div>
+
+    <div class="search-section">
+      <div class="form-group">
+        <label>รหัสแก้ไข (Edit Code) <span class="required">*</span></label>
+        <input type="text" id="editCode" placeholder="เช่น 57f3k9mu" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>ชื่อ <span class="required">*</span></label>
+          <input type="text" id="searchFirstname" placeholder="ชื่อของคุณ">
+        </div>
+        <div class="form-group">
+          <label>นามสกุล <span class="required">*</span></label>
+          <input type="text" id="searchLastname" placeholder="นามสกุลของคุณ">
+        </div>
+      </div>
+      <button class="btn-primary" id="searchBtn">🔍 ค้นหาโปรไฟล์</button>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <div id="editSection" class="edit-section">
+      <h3 style="margin-bottom: 20px;">📝 แก้ไขข้อมูล</h3>
+      <form id="editForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>ชื่อ <span class="required">*</span></label>
+            <input type="text" id="editFirstname" required>
+          </div>
+          <div class="form-group">
+            <label>นามสกุล <span class="required">*</span></label>
+            <input type="text" id="editLastname" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>รูปโปรไฟล์ (URL) <span class="required">*</span></label>
+          <input type="url" id="editPhoto" required>
+          <small>⚠️ ต้องเป็นลิงก์ Google Drive ที่ตั้งค่า Anyone with the link can view</small>
+        </div>
+
+        <div class="form-group">
+          <label>What I Do Best <span class="required">*</span></label>
+          <textarea id="editIdo" maxlength="200" rows="2" required></textarea>
+          <div class="char-counter"><span id="editIdoCounter">0</span>/200</div>
+        </div>
+
+        <div class="form-group">
+          <label>คำอธิบายเพิ่มเติม <span class="required">*</span></label>
+          <textarea id="editDesc" maxlength="500" rows="3" required></textarea>
+          <div class="char-counter"><span id="editDescCounter">0</span>/500</div>
+        </div>
+
+        <div class="form-group">
+          <label>Capability (เลือกได้หลายหมวด) <span class="required">*</span></label>
+          <div class="checkbox-group" id="editCapabilityGroup">
+            <label><input type="checkbox" value="System Architect"> System Architect</label>
+            <label><input type="checkbox" value="Conversation Builder"> Conversation Builder</label>
+            <label><input type="checkbox" value="Revenue Generator"> Revenue Generator</label>
+            <label><input type="checkbox" value="People Connector"> People Connector</label>
+            <label><input type="checkbox" value="Money Guardian"> Money Guardian</label>
+            <label><input type="checkbox" value="Make Things Beauty"> Make Things Beauty</label>
+            <label><input type="checkbox" value="Flow Planner"> Flow Planner</label>
+            <label><input type="checkbox" value="Trust Keeper"> Trust Keeper</label>
+            <label><input type="checkbox" value="Pattern Hunter"> Pattern Hunter</label>
+            <label><input type="checkbox" value="Hands-on Maker"> Hands-on Maker</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>ประสบการณ์ <span class="required">*</span></label>
+          <input type="text" id="editExp" required>
+        </div>
+
+        <div class="form-group">
+          <label>ทักษะ (Skill Tags) <span class="required">*</span></label>
+          <div id="editSkillContainer" class="dynamic-field-group"></div>
+          <button type="button" class="add-field-btn" id="editAddSkillBtn">+ เพิ่มทักษะ</button>
+        </div>
+
+        <div class="form-group">
+          <label>ภาษา <span class="required">*</span></label>
+          <div id="editLangContainer" class="dynamic-field-group"></div>
+          <button type="button" class="add-field-btn" id="editAddLangBtn">+ เพิ่มภาษา</button>
+        </div>
+
+        <div class="form-group">
+          <label>รูปแบบงาน <span class="required">*</span></label>
+          <div class="checkbox-group" id="editWorkTypeGroup">
+            <label><input type="checkbox" value="Full-time"> Full-time</label>
+            <label><input type="checkbox" value="Freelance"> Freelance</label>
+            <label><input type="checkbox" value="Hybrid"> Hybrid</label>
+            <label><input type="checkbox" value="Online"> Online</label>
+            <label><input type="checkbox" value="Onsite"> Onsite</label>
+            <label><input type="checkbox" value="Contract"> Contract</label>
+            <label><input type="checkbox" value="Remote"> Remote</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>เงินเดือนที่คาดหวัง <span class="required">*</span></label>
+          <select id="editSalary" required>
+            <option value="">เลือกช่วงเงินเดือน</option>
+            <option>ต่ำกว่า 20,000</option>
+            <option>20,000 - 30,000</option>
+            <option>30,001 - 40,000</option>
+            <option>40,001 - 50,000</option>
+            <option>50,001 - 70,000</option>
+            <option>70,001 - 90,000</option>
+            <option>90,001 - 120,000</option>
+            <option>120,001 ขึ้นไป</option>
+            <option>Negotiable</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>วันที่พร้อมเริ่มงาน <span class="required">*</span></label>
+          <input type="text" id="editAvailable" required>
+        </div>
+
+        <div class="form-group">
+          <label>พื้นที่ทำงาน (Work zone) <span class="required">*</span></label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="editZone" style="flex:1" required>
+            <button type="button" class="zone-btn" id="editAllZoneBtn">📍 รับทุกเขตในกทม.</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>LINE ID</label>
+          <input type="text" id="editLine">
+        </div>
+
+        <div class="form-group">
+          <label>เบอร์โทรศัพท์</label>
+          <input type="tel" id="editPhone">
+        </div>
+
+        <div class="form-group">
+          <label>อีเมล</label>
+          <input type="email" id="editEmail">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" id="editIg" placeholder="username (ไม่ต้องใส่ @)">
+          </div>
+          <div class="form-group">
+            <label>TikTok</label>
+            <input type="text" id="editTt" placeholder="username (ไม่ต้องใส่ @)">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Resume (URL) <span class="required">*</span></label>
+          <input type="url" id="editResume" required>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-danger" id="deleteBtn">🗑️ ลบโปรไฟล์</button>
+          <button type="submit" class="btn-primary">💾 อัปเดตข้อมูล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // GLOBAL
+  // ─────────────────────────────────────────────
+  let currentEditCode = '';
+  let currentRowId = null;
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBSKtA-RW4vy7HPqFairWgDHyG-1s2PkjpKWCtR_yc5anTt2AxaOz_hIaA96U27c0U/exec';
+
+  // ─────────────────────────────────────────────
+  // DYNAMIC FIELDS HELPERS
+  // ─────────────────────────────────────────────
+  function renderEditSkillTags(tagsArray) {
+    const container = document.getElementById('editSkillContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    tagsArray.forEach((tag, idx) => {
+      const div = document.createElement('div');
+      div.className = 'dynamic-field-item';
+      div.innerHTML = `
+        <input type="text" class="edit-skill-input" value="${escapeHtml(tag)}" placeholder="เช่น Python">
+        <button type="button" class="remove-edit-skill">✕</button>
+      `;
+      container.appendChild(div);
+      div.querySelector('.remove-edit-skill').addEventListener('click', () => {
+        div.remove();
+      });
+    });
+    if (tagsArray.length === 0) addEditSkillField();
+  }
+
+  function renderEditLanguages(langsArray) {
+    const container = document.getElementById('editLangContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    langsArray.forEach((lang, idx) => {
+      const div = document.createElement('div');
+      div.className = 'dynamic-field-item';
+      div.innerHTML = `
+        <input type="text" class="edit-lang-input" value="${escapeHtml(lang)}" placeholder="เช่น ไทย">
+        <button type="button" class="remove-edit-lang">✕</button>
+      `;
+      container.appendChild(div);
+      div.querySelector('.remove-edit-lang').addEventListener('click', () => {
+        div.remove();
+      });
+    });
+    if (langsArray.length === 0) addEditLangField();
+  }
+
+  function addEditSkillField() {
+    const container = document.getElementById('editSkillContainer');
+    const div = document.createElement('div');
+    div.className = 'dynamic-field-item';
+    div.innerHTML = `
+      <input type="text" class="edit-skill-input" placeholder="เช่น JavaScript">
+      <button type="button" class="remove-edit-skill">✕</button>
+    `;
+    container.appendChild(div);
+    div.querySelector('.remove-edit-skill').addEventListener('click', () => {
+      div.remove();
+    });
+  }
+
+  function addEditLangField() {
+    const container = document.getElementById('editLangContainer');
+    const div = document.createElement('div');
+    div.className = 'dynamic-field-item';
+    div.innerHTML = `
+      <input type="text" class="edit-lang-input" placeholder="เช่น อังกฤษ">
+      <button type="button" class="remove-edit-lang">✕</button>
+    `;
+    container.appendChild(div);
+    div.querySelector('.remove-edit-lang').addEventListener('click', () => {
+      div.remove();
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  // ─────────────────────────────────────────────
+  // SEARCH PROFILE (จะเชื่อม Google Sheets)
+  // ─────────────────────────────────────────────
+  async function searchProfile() {
+    const editCode = document.getElementById('editCode').value.trim();
+    const firstname = document.getElementById('searchFirstname').value.trim();
+    const lastname = document.getElementById('searchLastname').value.trim();
+
+    if (!editCode || !firstname || !lastname) {
+      showAlert('กรุณากรอกข้อมูลให้ครบทั้ง 3 ช่อง', 'error');
+      return;
+    }
+
+    showAlert('กำลังค้นหา...', 'info');
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'fetch',
+          edit_code: editCode,
+          firstname: firstname,
+          lastname: lastname
+        })
+      });
+  
+      const result = await response.json();
+  
+      if (result.success && result.data) {
+        fillEditForm(result.data);
+        currentEditCode = editCode;
+        currentRowId = result.data.id;
+        document.getElementById('editSection').classList.add('show');
+        showAlert('พบโปรไฟล์แล้ว กรอกข้อมูลที่ต้องการแก้ไข', 'success');
+      } else {
+        showAlert(result.error || 'ไม่พบโปรไฟล์ ตรวจสอบรหัส ชื่อ และนามสกุลอีกครั้ง', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    }
+  }
+
+  function fillEditForm(data) {
+    document.getElementById('editFirstname').value = data.firstname || '';
+    document.getElementById('editLastname').value = data.lastname || '';
+    document.getElementById('editPhoto').value = data.photo_id || '';
+    document.getElementById('editIdo').value = data.i_do_good || '';
+    document.getElementById('editDesc').value = data.description || '';
+    document.getElementById('editExp').value = data.experience || '';
+    document.getElementById('editSalary').value = data.expected_salary || '';
+    document.getElementById('editAvailable').value = data.available_date || '';
+    document.getElementById('editZone').value = data.work_zone || '';
+    document.getElementById('editLine').value = data.contact_line || '';
+    document.getElementById('editPhone').value = data.contact_phone || '';
+    document.getElementById('editEmail').value = data.contact_email || '';
+    document.getElementById('editResume').value = data.resume || '';
+
+    // Instagram/TikTok ดึง username จาก URL
+    const igUrl = data.instagram || '';
+    const ttUrl = data.tiktok || '';
+    const igUser = igUrl.replace('https://instagram.com/', '').replace('https://www.instagram.com/', '').replace(/\/$/, '');
+    const ttUser = ttUrl.replace('https://tiktok.com/@', '').replace('https://www.tiktok.com/@', '').replace(/\/$/, '');
+    document.getElementById('editIg').value = igUser !== 'https://instagram.com/' ? igUser : '';
+    document.getElementById('editTt').value = ttUser !== 'https://tiktok.com/@' ? ttUser : '';
+
+    // Capability checkboxes
+    const caps = (data.purpose_category || '').split(',').map(c => c.trim());
+    document.querySelectorAll('#editCapabilityGroup input').forEach(cb => {
+      cb.checked = caps.includes(cb.value);
+    });
+
+    // Work type checkboxes
+    const workTypes = (data.work_type || '').split(',').map(w => w.trim());
+    document.querySelectorAll('#editWorkTypeGroup input').forEach(cb => {
+      cb.checked = workTypes.includes(cb.value);
+    });
+
+    // Skill tags
+    const skills = (data.skill_tags || '').split(',').map(s => s.trim()).filter(s => s);
+    renderEditSkillTags(skills);
+
+    // Languages
+    const langs = (data.language || '').split(',').map(l => l.trim()).filter(l => l);
+    renderEditLanguages(langs);
+
+    // counters
+    document.getElementById('editIdoCounter').textContent = (data.i_do_good || '').length;
+    document.getElementById('editDescCounter').textContent = (data.description || '').length;
+  }
+
+  function showAlert(msg, type) {
+    const container = document.getElementById('alertContainer');
+    container.innerHTML = `<div class="alert alert-${type === 'error' ? 'error' : 'success'}">${msg}</div>`;
+    setTimeout(() => {
+      if (container.firstChild) container.innerHTML = '';
+    }, 4000);
+  }
+
+  // ─────────────────────────────────────────────
+  // UPDATE PROFILE (จะเชื่อม Google Sheets)
+  // ─────────────────────────────────────────────
+  async function updateProfile(e) {
+    e.preventDefault();
+
+    if (!currentEditCode) {
+      showAlert('กรุณาค้นหาโปรไฟล์ก่อน', 'error');
+      return;
+    }
+
+    const firstname = document.getElementById('editFirstname').value.trim();
+    const lastname = document.getElementById('editLastname').value.trim();
+    const photo = document.getElementById('editPhoto').value.trim();
+    const ido = document.getElementById('editIdo').value.trim();
+    const desc = document.getElementById('editDesc').value.trim();
+    const exp = document.getElementById('editExp').value.trim();
+    const salary = document.getElementById('editSalary').value;
+    const available = document.getElementById('editAvailable').value.trim();
+    const zone = document.getElementById('editZone').value.trim();
+    const line = document.getElementById('editLine').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+    const email = document.getElementById('editEmail').value.trim();
+    const ig = document.getElementById('editIg').value.trim();
+    const tt = document.getElementById('editTt').value.trim();
+    const resume = document.getElementById('editResume').value.trim();
+
+    const selectedCaps = Array.from(document.querySelectorAll('#editCapabilityGroup input:checked')).map(cb => cb.value);
+    const selectedWorkTypes = Array.from(document.querySelectorAll('#editWorkTypeGroup input:checked')).map(cb => cb.value);
+
+    const skillTags = Array.from(document.querySelectorAll('#editSkillContainer .edit-skill-input')).map(inp => inp.value.trim()).filter(v => v);
+    const languages = Array.from(document.querySelectorAll('#editLangContainer .edit-lang-input')).map(inp => inp.value.trim()).filter(v => v);
+
+    if (!firstname || !lastname || !photo || !ido || !desc || !exp || !salary || !available || !zone || !resume) {
+      showAlert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *', 'error');
+      return;
+    }
+    if (selectedCaps.length === 0) {
+      showAlert('กรุณาเลือก Capability อย่างน้อย 1 หมวด', 'error');
+      return;
+    }
+    if (selectedWorkTypes.length === 0) {
+      showAlert('กรุณาเลือกรูปแบบงานอย่างน้อย 1 แบบ', 'error');
+      return;
+    }
+    if (skillTags.length === 0) {
+      showAlert('กรุณากรอกทักษะอย่างน้อย 1 อย่าง', 'error');
+      return;
+    }
+    if (languages.length === 0) {
+      showAlert('กรุณากรอกภาษาอย่างน้อย 1 ภาษา', 'error');
+      return;
+    }
+
+    const instagramUrl = ig ? `https://instagram.com/${ig.replace('@', '')}` : '';
+    const tiktokUrl = tt ? `https://tiktok.com/@${tt.replace('@', '')}` : '';
+
+    const payload = {
+      action: 'update',
+      edit_code: currentEditCode,
+      firstname, lastname,
+      photo_id: photo,
+      i_do_good: ido,
+      description: desc,
+      purpose_category: selectedCaps.join(', '),
+      experience: exp,
+      skill_tags: skillTags.join(', '),
+      language: languages.join(', '),
+      work_type: selectedWorkTypes.join(', '),
+      expected_salary: salary,
+      available_date: available,
+      work_zone: zone,
+      contact_line: line,
+      contact_phone: phone,
+      contact_email: email,
+      instagram: instagramUrl,
+      tiktok: tiktokUrl,
+      resume: resume
+    };
+
+    console.log('Update payload:', payload);
+    
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        showAlert('อัปเดตข้อมูลสำเร็จ!', 'success');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      } else {
+        showAlert(result.error || 'เกิดข้อผิดพลาด', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // DELETE PROFILE
+  // ─────────────────────────────────────────────
+  async function deleteProfile() {
+    if (!currentEditCode) {
+      showAlert('กรุณาค้นหาโปรไฟล์ก่อน', 'error');
+      return;
+    }
+
+    const confirmMsg = confirm('⚠️ คุณแน่ใจว่าต้องการลบโปรไฟล์นี้?\nการลบไม่สามารถกู้คืนได้');
+    if (!confirmMsg) return;
+
+    const payload = {
+      action: 'delete',
+      edit_code: currentEditCode,
+      firstname: document.getElementById('editFirstname').value.trim(),
+      lastname: document.getElementById('editLastname').value.trim()
+    };
+
+    console.log('Delete payload:', payload);
+    
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        showAlert('ลบโปรไฟล์สำเร็จ!', 'success');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      } else {
+        showAlert(result.error || 'เกิดข้อผิดพลาด', 'error');
+      }
+    } catch (err) {
+      showAlert('เกิดข้อผิดพลาด: ' + err.message, 'error');
+    }
+    
+    // เคลียร์ฟอร์ม
+    document.getElementById('editSection').classList.remove('show');
+    document.getElementById('editCode').value = '';
+    document.getElementById('searchFirstname').value = '';
+    document.getElementById('searchLastname').value = '';
+    currentEditCode = '';
+  }
+
+  // ─────────────────────────────────────────────
+  // EVENT LISTENERS
+  // ─────────────────────────────────────────────
+  document.getElementById('searchBtn')?.addEventListener('click', searchProfile);
+  document.getElementById('editForm')?.addEventListener('submit', updateProfile);
+  document.getElementById('deleteBtn')?.addEventListener('click', deleteProfile);
+  document.getElementById('editAddSkillBtn')?.addEventListener('click', addEditSkillField);
+  document.getElementById('editAddLangBtn')?.addEventListener('click', addEditLangField);
+  document.getElementById('editAllZoneBtn')?.addEventListener('click', () => {
+    document.getElementById('editZone').value = 'กทม. (ทุกเขต)';
+  });
+
+  // counters
+  const editIdo = document.getElementById('editIdo');
+  const editDesc = document.getElementById('editDesc');
+  if (editIdo) editIdo.addEventListener('input', () => {
+    document.getElementById('editIdoCounter').textContent = editIdo.value.length;
+  });
+  if (editDesc) editDesc.addEventListener('input', () => {
+    document.getElementById('editDescCounter').textContent = editDesc.value.length;
+  });
+</script>
+</body>
+</html>

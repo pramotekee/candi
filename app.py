@@ -46,7 +46,7 @@ html_code = """
   #page-list { padding-bottom: 60px; }
   .header {
     text-align: center;
-    padding: 48px 20px 60px;
+    padding: 24px 20px 32px;
     background: #1538C0;
     border-radius: 0 0 32px 32px;
     margin-bottom: 20px;

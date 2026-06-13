@@ -1,217 +1,1336 @@
-import streamlit as st
-import sqlite3
-import pandas as pd
-import calendar
-from datetime import datetime, date
-import hashlib
-import os
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candi — Find Talent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=SF+Pro+Display:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --accent: #1D1D6E;
+    --accent-mid: #3A3A8C;
+    --text-primary: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --tag-bg: #E8E8ED;
+    --tag-text: #3A3A3C;
+    --border: #D2D2D7;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --card-shadow-hover: 0 8px 28px rgba(0,0,0,0.12);
 
-st.set_page_config(page_title="PEOPLE DAIRY", layout="wide")
+    /* Category colors */
+    --cat-system:      #4A6FA5;
+    --cat-conversation:#3A9E8F;
+    --cat-revenue:     #2E8B57;
+    --cat-people:      #E8734A;
+    --cat-money:       #B8860B;
+    --cat-beauty:      #C4637A;
+    --cat-flow:        #7B5EA7;
+    --cat-trust:       #4A90C4;
+    --cat-pattern:     #D4832A;
+    --cat-maker:       #8B5A2B;
+    --cat-default:     #8E8E93;
+  }
 
-# DB Setup
-conn = sqlite3.connect('diary.db', check_same_thread=False)
-c = conn.cursor()
-c.execute('''
-    CREATE TABLE IF NOT EXISTS entries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        entry_date TEXT,
-        name TEXT,
-        title TEXT,
-        story TEXT,
-        country TEXT,
-        province TEXT,
-        image_path TEXT,
-        created_at TEXT
-    )
-''')
-conn.commit()
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-# Helper
-def format_date_display(date_obj):
-    return date_obj.strftime("%d/%m/%Y")
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
 
-def get_today_str():
-    return date.today().isoformat()
+  .app {
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+  }
 
-def get_fyi():
-    fyi_list = {
-        "2026-06-11": "🌍 World Population Day: Raise awareness about global population issues",
-        "2026-06-12": "🎨 International Yarn Bombing Day: Yarn art in public spaces"
+  /* ── HEADER ── */
+  #page-list { padding-bottom: 60px; }
+
+  .header {
+    text-align: center;
+    padding: 48px 20px 60px;
+    background: #1538C0;
+    border-radius: 0 0 32px 32px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .header {
+      padding: 32px 20px 40px;
     }
-    today = get_today_str()
-    return fyi_list.get(today, "✨ Every day is special for someone. Start writing your story.")
-
-def get_country_province_list():
-    return {
-        "Thailand": ["Bangkok", "Chiang Mai", "Phuket", "Khon Kaen", "Pattaya"],
-        "Japan": ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Hokkaido"],
-        "USA": ["New York", "Los Angeles", "Chicago", "Houston", "Miami"],
-        "UK": ["London", "Manchester", "Liverpool", "Edinburgh", "Bristol"],
-        "France": ["Paris", "Lyon", "Marseille", "Nice", "Bordeaux"],
-        "Germany": ["Berlin", "Munich", "Hamburg", "Cologne", "Frankfurt"]
+    .header .slogan {
+      font-size: 16px;
+      letter-spacing: 1px;
     }
+    .header .caption {
+      font-size: 13px;
+      padding: 0 20px;
+    }
+  }
 
-day_colors = {
-    0: "#FFD966",  # Mon
-    1: "#FFB347",  # Tue
-    2: "#F4A261",  # Wed
-    3: "#E9C46A",  # Thu
-    4: "#A7C7E7",  # Fri
-    5: "#B5EAD7",  # Sat
-    6: "#F7C6C6"   # Sun
+  .header h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 72px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 14px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .header h2 {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-top: 8px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* ✅ เพิ่ม这部分 */
+  .header .slogan {
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    letter-spacing: 2px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .header .caption {
+    font-size: 15px;
+    font-weight: 400;
+    color: #F9BF16;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── SEARCH & SORT ── */
+  .search-container {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 14px;
+    max-width: 100%;
+    margin: 0;
+  }
+  .search-box {
+    flex: 1;
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 11px 18px 11px 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .search-box input:focus {
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(58,58,140,0.08);
+  }
+  .search-box::before {
+    content: "🔍";
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    opacity: 0.4;
+  }
+  .sort-select {
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    min-width: 72px;
+  }
+
+  /* ✅ เพิ่ม这部分 */
+  .create-btn {
+    background: #F5C518;  /* สีเหลือง */
+    color: #1D1D1F;       /* สีดำ */
+    border: none;
+    border-radius: 12px;
+    padding: 0 20px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .create-btn:hover {
+    background: #E0B010;  /* สีเหลืองเข้มขึ้นตอน hover */
+    transform: translateY(-1px);
+  }
+
+  .create-btn:active {
+    transform: translateY(1px);
+  }
+
+  /* ── CATEGORY TABS ── */
+  .tabs-wrapper {
+    padding: 0 20px 20px;
+    overflow-x: auto;
+    display: flex;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .tabs-wrapper::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    white-space: nowrap;
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .tab-btn:hover { color: var(--text-primary); }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* Category-colored active tabs */
+  .tab-btn.active[data-cat="System Architect"]     { background: var(--cat-system);      border-color: var(--cat-system); }
+  .tab-btn.active[data-cat="Conversation Builder"] { background: var(--cat-conversation); border-color: var(--cat-conversation); }
+  .tab-btn.active[data-cat="Revenue Generator"]    { background: var(--cat-revenue);     border-color: var(--cat-revenue); }
+  .tab-btn.active[data-cat="People Connector"]     { background: var(--cat-people);      border-color: var(--cat-people); }
+  .tab-btn.active[data-cat="Money Guardian"]       { background: var(--cat-money);       border-color: var(--cat-money); }
+  .tab-btn.active[data-cat="Make Things Beauty"]   { background: var(--cat-beauty);      border-color: var(--cat-beauty); }
+  .tab-btn.active[data-cat="Flow Planner"]         { background: var(--cat-flow);        border-color: var(--cat-flow); }
+  .tab-btn.active[data-cat="Trust Keeper"]         { background: var(--cat-trust);       border-color: var(--cat-trust); }
+  .tab-btn.active[data-cat="Pattern Hunter"]       { background: var(--cat-pattern);     border-color: var(--cat-pattern); }
+  .tab-btn.active[data-cat="Hands-on Maker"]       { background: var(--cat-maker);       border-color: var(--cat-maker); } 
+
+  /* ── RESPONSIVE GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 0 16px 40px;
+  }
+  @media (min-width: 600px) {
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 0 20px 40px; }
+  }
+  @media (min-width: 900px) {
+    .grid { grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 0 24px 40px; }
+  }
+  @media (min-width: 1200px) {
+    .grid { grid-template-columns: repeat(5, 1fr); gap: 22px; }
+  }
+  @media (min-width: 1400px) {
+    .grid { grid-template-columns: repeat(6, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .header .slogan {
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+    .header .caption {
+      font-size: 13px;
+      padding: 0 20px;
+    }
+  }
+
+  /* ── THUMB CARD ── */
+  .thumb-card {
+    cursor: pointer;
+    background: var(--surface);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2.5px solid transparent;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .thumb-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow-hover);
+  }
+  .thumb-card:active { transform: scale(0.97); }
+
+  /* Category border colors */
+  .thumb-card[data-cat="System Architect"]     { border-color: var(--cat-system); }
+  .thumb-card[data-cat="Conversation Builder"] { border-color: var(--cat-conversation); }
+  .thumb-card[data-cat="Revenue Generator"]    { border-color: var(--cat-revenue); }
+  .thumb-card[data-cat="People Connector"]     { border-color: var(--cat-people); }
+  .thumb-card[data-cat="Money Guardian"]       { border-color: var(--cat-money); }
+  .thumb-card[data-cat="Make Things Beauty"]   { border-color: var(--cat-beauty); }
+  .thumb-card[data-cat="Flow Planner"]         { border-color: var(--cat-flow); }
+  .thumb-card[data-cat="Trust Keeper"]         { border-color: var(--cat-trust); }
+  .thumb-card[data-cat="Pattern Hunter"]       { border-color: var(--cat-pattern); }
+  .thumb-card[data-cat="Hands-on Maker"]       { border-color: var(--cat-maker); }
+
+  .thumb-img {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #E8E8ED;
+    position: relative;
+  }
+  .thumb-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .thumb-img .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #2C2C6E, #1D1D4E);
+  }
+  .thumb-img .avatar-placeholder svg {
+    width: 48%;
+    height: 48%;
+    opacity: 0.25;
+  }
+
+  .thumb-info {
+    padding: 12px 12px 14px;
+  }
+  .thumb-name {
+    font-size: 12px;
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .thumb-purpose {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+  .thumb-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .thumb-meta-row {
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .thumb-badge {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .thumb-badge.available {
+    background: #E3F5EC;
+    color: #1A7A3C;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,30,0.5);
+    z-index: 300;
+    align-items: flex-end;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.open { display: flex; }
+
+  @media (min-width: 768px) {
+    .modal-overlay { align-items: center; }
+    .modal {
+      border-radius: 20px !important;
+      max-width: 480px !important;
+      max-height: 88vh !important;
+    }
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 480px;
+    max-height: 92vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+    animation: slideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px 14px;
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-top-label {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .close-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 15px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .close-btn:hover { background: var(--tag-bg); }
+
+  .modal-body { padding: 20px 20px 0; }
+
+  .profile-top {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+  .profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #E8E8ED;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .profile-img:active { transform: scale(0.96); }
+  .profile-img img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .profile-img .avatar-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(145deg, #2C2C6E, #1D1D4E);
+  }
+  .note-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-style: italic;
+    padding-top: 2px;
+  }
+
+  .profile-name { margin-bottom: 14px; }
+  .fname {
+    font-family: 'Inter', sans-serif;
+        font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+  .lname {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .tag {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 12px;
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0;
+    margin-bottom: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .info-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 12px 24px 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    white-space: nowrap;
+  }
+  .info-value {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    line-height: 1.5;
+  }
+
+  .contact-section {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .contact-title {
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .contact-btn {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border: none;
+    border-radius: 20px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, transform 0.12s;
+  }
+  .contact-btn:hover { background: #D8D8DD; }
+  .contact-btn:active { transform: scale(0.96); }
+  .contact-btn.share-btn {
+    background: var(--accent);
+    color: #fff;
+  }
+  .contact-btn.share-btn:hover { background: var(--accent-mid); }
+  .contact-btn.resume-btn {
+    background: #E3F0FF;
+    color: #1D4ED8;
+  }
+  .contact-btn.resume-btn:hover { background: #CCDEFF; }
+
+  /* ── HOME BAR ── */
+  .home-bar {
+    display: none;
+    width: 100%;
+    padding: 24px 20px 16px;
+    background: transparent;
+    z-index: 400;
+  }
+  .home-bar.visible { display: block; }
+  .home-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 40px;
+    padding: 15px;
+    font-size: 15px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: background 0.15s;
+  }
+  .home-btn:hover { background: var(--bg); }
+
+  /* ── LIGHTBOX ── */
+  .lightbox-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,30,0.94);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    cursor: zoom-out;
+  }
+  .lightbox-overlay.open { display: flex; opacity: 1; }
+  .lightbox-img-wrapper {
+    max-width: 90%;
+    max-height: 80vh;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    transform: scale(0.92);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lightbox-overlay.open .lightbox-img-wrapper { transform: scale(1); }
+  .lightbox-img-wrapper img {
+    width: 100%; height: auto;
+    max-height: 80vh; object-fit: contain; display: block;
+  }
+  .lightbox-close {
+    position: absolute; top: 24px; right: 24px;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: none; color: #fff; font-size: 20px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 100px; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--text-primary); color: #F5F5F7;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; transition: opacity 0.2s, transform 0.2s;
+    z-index: 999; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .modal::-webkit-scrollbar { width: 3px; }
+  .modal::-webkit-scrollbar-track { background: transparent; }
+  .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Toggle buttons */
+  .view-toggle-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+  .view-toggle-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  /* Line View */
+  .grid.line-view {
+    display: block;
+  }
+  .grid.line-view .thumb-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid transparent;
+    box-shadow: none;
+    cursor: pointer;
+  }
+  .grid.line-view .thumb-card:hover {
+    background: #F9F9FB;
+    transform: none;
+  }
+  .grid.line-view .thumb-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    overflow: hidden;
+    align-self: flex-start;
+  }
+  .grid.line-view .thumb-info {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 0;
+  }
+
+  /* เมื่อจอเล็กกว่า 768px → ให้ซ้อนกันแนวตั้ง */
+  @media (max-width: 768px) {
+    .grid.line-view .thumb-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .grid.line-view .thumb-img {
+      width: 60px;
+      height: 60px;
+    }
+    .grid.line-view .thumb-info {
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .grid.line-view .thumb-name {
+      min-width: unset;
+    }
+    .grid.line-view .thumb-purpose {
+      min-width: unset;
+      width: 100%;
+    }
+    .grid.line-view .thumb-meta {
+      flex-wrap: wrap;
+    }
+    .grid.line-view .line-workzone,
+    .grid.line-view .line-sentence {
+      min-width: unset;
+      max-width: 100%;
+      width: 100%;
+      padding-left: 0;
+      border-left: none;
+      margin-top: 4px;
+    }
+  }
+  /* ปกติ (จอใหญ่) */
+  .grid.line-view .line-workzone {
+    min-width: 120px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    white-space: normal;
+    word-break: break-word;
+    padding-left: 8px;
+    border-left: 1px solid var(--border);
+  }
+
+  /* จอเล็ก เอา border ซ้ายออก */
+  @media (max-width: 768px) {
+    .grid.line-view .line-workzone,
+    .grid.line-view .line-sentence {
+      border-left: none;
+      padding-left: 0;
+      margin-top: 6px;
+    }
+  } 
+  .grid.line-view .thumb-name {
+    min-width: 130px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0;
+  }
+  .grid.line-view .thumb-purpose {
+    min-width: 140px;
+    font-size: 12px;
+    white-space: normal;
+    word-break: break-word;
+    margin-bottom: 0;
+  }
+  .grid.line-view .thumb-meta {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .grid.line-view .thumb-meta-row {
+    font-size: 11px;
+  }
+  .grid.line-view .thumb-badge {
+    white-space: nowrap;
+  }
+  .line-sentence {
+    display: none;
+  }
+
+  /* แล้วตามด้วย CSS ที่คุณเจออยู่แล้ว */
+  .grid.line-view .line-sentence {
+    min-width: 200px;
+    max-width: 280px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    word-break: break-word;
+    white-space: normal;
+    font-style: italic;
+    padding-left: 8px;
+    border-left: 2px solid var(--border);
+  }
+
+  .grid.line-view .line-workzone {
+  min-width: 140px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  white-space: normal;
+  word-break: break-word;
+  padding-left: 4px;
 }
 
-if "selected_date" not in st.session_state:
-    st.session_state.selected_date = None
+  /* Line View category border colors */
+  .grid.line-view .thumb-card[data-cat="System Architect"]     { border-color: var(--cat-system); }
+  .grid.line-view .thumb-card[data-cat="Conversation Builder"] { border-color: var(--cat-conversation); }
+  .grid.line-view .thumb-card[data-cat="Revenue Generator"]    { border-color: var(--cat-revenue); }
+  .grid.line-view .thumb-card[data-cat="People Connector"]     { border-color: var(--cat-people); }
+  .grid.line-view .thumb-card[data-cat="Money Guardian"]       { border-color: var(--cat-money); }
+  .grid.line-view .thumb-card[data-cat="Make Things Beauty"]   { border-color: var(--cat-beauty); }
+  .grid.line-view .thumb-card[data-cat="Flow Planner"]         { border-color: var(--cat-flow); }
+  .grid.line-view .thumb-card[data-cat="Trust Keeper"]         { border-color: var(--cat-trust); }
+  .grid.line-view .thumb-card[data-cat="Pattern Hunter"]       { border-color: var(--cat-pattern); }
+  .grid.line-view .thumb-card[data-cat="Hands-on Maker"]       { border-color: var(--cat-maker); }
 
-# --------------------------------------
-# HEADER + DASHBOARD (ย้ายขึ้นบน)
-# --------------------------------------
-st.title("📔 PEOPLE DAIRY")
-st.caption(f"🧠 FYI : {get_fyi()}")
+</style>
+</head>
+<body>
 
-col_dash1, col_dash2, col_dash3 = st.columns(3)
-df_all = pd.read_sql("SELECT country, province FROM entries", conn)
-total_stories = len(df_all)
+<div class="app">
+  <div id="page-list">
+    <div class="header">
+      <h1>CANDI</h1>
+      <p class="slogan">Job titles fade. Human capabilities grow.</p>
+      <p class="caption">The future of work isn’t about titles. It’s about what people can do.</p>
+    </div>
 
-with col_dash1:
-    st.metric("📚 Total Stories", total_stories)
-with col_dash2:
-    unique_countries = df_all['country'].nunique() if not df_all.empty else 0
-    st.metric("🌍 Countries", unique_countries)
-with col_dash3:
-    unique_provinces = df_all['province'].nunique() if not df_all.empty else 0
-    st.metric("📍 Places", unique_provinces)
+    <div class="search-container">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search talent..." oninput="handleFilterChange()">
+      </div>
+      <select id="sort-select" class="sort-select" onchange="handleFilterChange()">
+        <option value="">A-Z</option>
+        <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+        <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+        <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+        <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+        <option value="M">M</option><option value="N">N</option><option value="O">O</option>
+        <option value="P">P</option><option value="Q">Q</option><option value="R">R</option>
+        <option value="S">S</option><option value="T">T</option><option value="U">U</option>
+        <option value="V">V</option><option value="W">W</option><option value="X">X</option>
+        <option value="Y">Y</option><option value="Z">Z</option>
+      </select>
+      <button id="createEditBtn" class="create-btn">➕ Create / Edit</button>
+    </div>
 
-if not df_all.empty:
-    with st.expander("🌍 Echoes from the World (Top Countries)"):
-        country_stats = df_all['country'].value_counts()
-        for ctry, cnt in country_stats.items():
-            percent = (cnt / total_stories) * 100
-            st.markdown(f"{ctry} : {cnt} stories ({percent:.1f}%)")
+    <div class="tabs-wrapper" id="tabs-wrapper"></div>
+    <div class="view-toggle" style="display: flex; gap: 8px; padding: 0 20px 14px; justify-content: flex-start;">
+      <button id="view-card" class="view-toggle-btn active">▦ Card</button>
+      <button id="view-line" class="view-toggle-btn">≡ Line</button>
+    </div>
+    <div id="cat-desc-bar" style="display:none;margin:0 16px 16px;padding:14px 16px;background:#fff;border-radius:12px;border-left:4px solid #000;font-size:13.5px;line-height:1.8;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
+    <div class="grid card-view" id="grid"></div>
+  </div>
+</div>
 
-st.divider()
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-top">
+      <span class="modal-top-label">Candi</span>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="home-bar" id="home-bar">
+      <button class="home-btn" onclick="closeModal()">Back to Talent</button>
+    </div>
+  </div>
+</div>
 
-# --------------------------------------
-# ปฏิทิน Grid (responsive)
-# --------------------------------------
-now = datetime.now()
-year, month = now.year, now.month
-cal = calendar.monthcalendar(year, month)
-today_date = date.today()
+<div class="lightbox-overlay" id="lightbox-overlay" onclick="closeLightbox()">
+  <button class="lightbox-close">✕</button>
+  <div class="lightbox-img-wrapper" onclick="event.stopPropagation()">
+    <img id="lightbox-img" src="" alt="Zoomed View">
+  </div>
+</div>
 
-# Headers
-cols_header = st.columns(7)
-for i, day_name in enumerate(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]):
-    cols_header[i].markdown(f"**{day_name}**")
+<div class="toast" id="toast"></div>
 
-# Calendar grid
-for week in cal:
-    cols = st.columns(7)
-    for i, day in enumerate(week):
-        if day == 0:
-            cols[i].write("")
-        else:
-            current_date = date(year, month, day)
-            is_future = current_date > today_date
-            day_color = day_colors.get(i, "#CCCCCC")
-            date_label = format_date_display(current_date)
-            
-            if is_future:
-                cols[i].markdown(
-                    f"<div style='text-align: center; background-color: #E0E0E0; border-radius: 50%; width: 60px; height: 60px; line-height: 60px; margin: auto; color: gray;'>{day}<br><small style='font-size: 10px;'>{date_label}</small></div>",
-                    unsafe_allow_html=True
-                )
-            else:
-                button_label = f"{day}\n{date_label}"
-                if current_date == today_date:
-                    button_label = f"✨ {day}\n{date_label}"
-                if cols[i].button(button_label, key=f"day_{year}_{month}_{day}", use_container_width=True):
-                    st.session_state.selected_date = current_date
-                    st.rerun()
+<script>
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
+const SHEET_ID   = '1grSMSRuWMvC5F5V82tMY0PJwV4WBHUn7OijZ6j3_Zxg';
+const API_KEY    = 'AIzaSyAWrJsndGoZ4jbu5F-aF237xaADi-sHL5k';
+const RANGE_DOCS = 'Sheet1!A2:V10000';
+const RANGE_CATS = 'Categories!A2:A100';
+const USE_MOCK   = false;
 
-# --------------------------------------
-# ฟอร์มบันทึก (เมื่อกดวันที่)
-# --------------------------------------
-if st.session_state.selected_date:
-    selected_date = st.session_state.selected_date
-    with st.container():
-        st.divider()
-        st.subheader(f"📝 {format_date_display(selected_date)}")
-        c.execute("SELECT * FROM entries WHERE entry_date=?", (selected_date.isoformat(),))
-        old = c.fetchone()
-        
-        if selected_date < today_date and old:
-            st.info("🔒 Past date: View only mode (PRO feature coming)")
-            with st.expander("📄 Read Story"):
-                st.write(f"**Name :** {old[2]}")
-                st.write(f"**Title :** {old[3]}")
-                st.write(f"**Story :** {old[4]}")
-                st.write(f"**Country :** {old[5]}")
-                st.write(f"**Province :** {old[6]}")
-        else:
-            with st.form("entry_form"):
-                name = st.text_input("1️⃣ Name")
-                title = st.text_input("2️⃣ Title")
-                story = st.text_area("3️⃣ Story", height=150)
-                story_len = len(story)
-                st.caption(f"Characters {story_len}/500")
-                
-                country_list = list(get_country_province_list().keys())
-                selected_country = st.selectbox("4️⃣ Country", country_list)
-                provinces = get_country_province_list().get(selected_country, [])
-                selected_province = st.selectbox("Province", provinces)
-                
-                uploaded_img = st.file_uploader("🖼️ Add Image", type=["png", "jpg", "jpeg"])
-                saved = st.form_submit_button("💾 SAVE")
-                if saved:
-                    if not name or not title or not story:
-                        st.error("Please fill Name, Title, Story")
-                    else:
-                        img_path = ""
-                        if uploaded_img:
-                            os.makedirs("uploads", exist_ok=True)
-                            ext = uploaded_img.name.split('.')[-1]
-                            fname = hashlib.md5(f"{selected_date}{name}".encode()).hexdigest() + f".{ext}"
-                            img_path = os.path.join("uploads", fname)
-                            with open(img_path, "wb") as f:
-                                f.write(uploaded_img.getbuffer())
-                        c.execute('''
-                            INSERT OR REPLACE INTO entries 
-                            (entry_date, name, title, story, country, province, image_path, created_at)
-                            VALUES (?,?,?,?,?,?,?,?)
-                        ''', (selected_date.isoformat(), name, title, story, selected_country, selected_province, img_path, datetime.now().isoformat()))
-                        conn.commit()
-                        st.success("✅ Saved successfully")
-                        st.session_state.selected_date = None
-                        st.rerun()
+// ─────────────────────────────────────────────
+// CATEGORY COLOR MAP
+// ─────────────────────────────────────────────
+const CAT_DESC = {
+  'System Architect':     { sub: 'ถนัดเรื่องการทำงานของระบบ โครงสร้าง เครือข่ายการรับส่งข้อมูลระหว่างกันได้อย่างมีประสิทธิภาพสูงสุด', roles: 'Software  Engineer, Tech Developer, IT Manager, System Admin, DevOps' },
+  'Conversation Builder': { sub: 'ชอบสร้างการรับรู้ สร้าความสนใจ ทำให้ผู้คนคิด ตัดสินใจ และลงมือทำอะไรบางอย่าง', roles: 'Marketing, Copywriter, Content Creator, PR, Communications Manager, Brand Storyteller' },
+  'Revenue Generator':    { sub: 'มองเห็นโอกาสในการสร้างยอดขายได้เสมอ รู้ว่าจะเปลี่ยนความต้องการของผู้คนให้กลายเป็นรายได้ยังไง', roles: 'Sales Manager, Business Development, Account Executive, Growth Manager' },
+  'People Connector':     { sub: 'เข้าใจความแตกต่างของผู้คน มองเห็นศักยภาพที่ซ่อนอยู่ และสร้างสภาพแวดล้อมที่ทำให้แต่ละคนอยากดึงสิ่งที่ดีที่สุดของตัวเองออกมา', roles: 'HR Manager, Recruiter, Talent Acquisition, People & Culture' },
+  'Money Guardian':       { sub: 'มองเห็นเรื่องราวที่ซ่อนอยู่หลังตัวเลข และเชื่อว่าการตัดสินใจที่ดีเริ่มต้นจากความรอบคอบและความรับผิดชอบต่อทรัพยากรที่มี', roles: 'CFO, Finance Manager, Accountant, Financial Analyst, Cost Controller' },
+  'Make Things Beauty':   { sub: 'เชื่อในพลังของภาพ สี รูปทรง และองค์ประกอบ สามารถถ่ายทอดความรู้สึกและความหมายได้ชัดเจนกว่าคำพูดมากมาย', roles: 'Graphic Designer, UI/UX Designer, Art Director, Brand Designer' },
+  'Flow Planner':         { sub: 'มีความสุขกับการจัดระเบียบความซับซ้อน เชื่อมโยงทุกอย่างให้ดำเนินไปด้วยความราบรื่นเป็นระบบ ตรงเวลา ไม่มีสะดุด', roles: 'Project Manager, Operations Manager, COO, Logistics, Event Manager' },
+  'Trust Keeper':         { sub: 'คนที่ทำให้ลูกค้ารู้สึกว่าได้รับการดูแลจริงๆ ใส่ใจในความรู้สึกของผู้คน รับฟังในสิ่งที่เขาไม่ได้พูดออกมา เข้าใจลูกค้าอย่างจริงใจ', roles: 'Customer Success, Account Manager, Client Service, CX Manager' },
+  'Pattern Hunter':       { sub: 'สนุกกับการค้นหารูปแบบ ความเชื่อมโยง และสัญญาณเล็ก ๆ ในข้อมูล เพื่อเปลี่ยนข้อเท็จจริงให้กลายเป็นมุมมองและการตัดสินใจที่ดีขึ้น', roles: 'Data Analyst, Business Intelligence, Market Research, Insights Manager' },
+  'Hands-on Maker':       { sub: 'ผู้ซ่อม สร้าง เสริม เติม แต่ง ปรับปรุง เพื่อให้สิ่งต่างๆ ที่พัง ชำรุดกลับมาใช้งานได้ หรือดียิ่งขึ้น', roles: 'ช่างซ่อม, ช่างปะปา, ช่างไฟ, ช่างแอร์, ช่างเครื่อง, ช่างรับเหมาก่อสร้าง, นักทำความสะอาด, Maintenance Engineer, Fabricator, Craftsman, Repair Specialist' },
+};
 
-# --------------------------------------
-# Latest Stories Feed
-# --------------------------------------
-st.divider()
-st.subheader("📌 Latest Stories")
-search_term = st.text_input("🔍 Search by Name, Title, or Story")
-query = "SELECT * FROM entries ORDER BY created_at DESC"
-if search_term:
-    query = f'''SELECT * FROM entries 
-                WHERE name LIKE '%{search_term}%' 
-                OR title LIKE '%{search_term}%' 
-                OR story LIKE '%{search_term}%' 
-                ORDER BY created_at DESC'''
-df = pd.read_sql(query, conn)
+const CAT_COLORS = {
+  'System Architect':     '#4A6FA5',
+  'Conversation Builder': '#3A9E8F',
+  'Revenue Generator':    '#2E8B57',
+  'People Connector':     '#E8734A',
+  'Money Guardian':       '#B8860B',
+  'Make Things Beauty':   '#C4637A',
+  'Flow Planner':         '#7B5EA7',
+  'Trust Keeper':         '#4A90C4',
+  'Pattern Hunter':       '#D4832A',
+  'Hands-on Maker':       '#8B5A2B',
+};
 
-if df.empty:
-    st.info("No stories yet. Start writing in the calendar ✨")
-else:
-    for _, row in df.iterrows():
-        with st.container():
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                st.markdown(f"**👤 {row['name']}**  •  📍 {row['country']} / {row['province']}")
-                st.markdown(f"### {row['title']}")
-                st.markdown(f"{row['story'][:200]}...")
-            with col2:
-                if st.button(f"🔗 Share", key=f"share_{row['id']}"):
-                    st.code(f"https://people-dairy.streamlit.app/?id={row['id']}", language="text")
-            st.divider()
+function getCatColor(catName) {
+  if (!catName) return '#8E8E93';
+  const key = Object.keys(CAT_COLORS).find(k => catName.includes(k));
+  return key ? CAT_COLORS[key] : '#8E8E93';
+}
+
+function normalizeNumber(str) {
+  if (!str) return '';
+  // ลบ comma, ลบ +, ลบ spaces, ลบตัวอักษรที่ไม่ใช่ตัวเลข
+  return str.toString().replace(/,/g, '').replace(/\+/g, '').replace(/\s/g, '');
+}
+
+// ─────────────────────────────────────────────
+// MOCK DATA
+// ─────────────────────────────────────────────
+const MOCK_DATA = [
+  { id:'C001', firstname:'Zara', lastname:'Manapayayam', photo_id:'1PwQs5kIUH9KUXpdNctomYmKes1ODMdcg', tagline:'ผมสร้าง system ที่ทำให้ทีมทำงานน้อยลงแต่ได้มากขึ้น', purpose_tag:'System Architect', experience:'8 ปี', skill_tags:'Python,React,AWS', language:'ไทย, อังกฤษ', work_type:'Full-time', expected_salary:'80,000+', available_date:'พร้อมทันที', contact_phone:'081-234-5678', contact_line:'@zaraclinic', contact_email:'zara@example.com', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'System Architect', resume:'' },
+  { id:'C002', firstname:'Pong', lastname:'Sawadan', photo_id:'1JBfKWL2tnNaFqO69Y9LdEMUJ4hdmseOi', tagline:'ผมเชื่อว่าคำพูดที่ถูกต้องเปิดประตูที่ปิดสนิทได้', purpose_tag:'Conversation Builder', experience:'5 ปี', skill_tags:'Copywriting,Content,Social Media', language:'ไทย', work_type:'Freelance', expected_salary:'50,000+', available_date:'ต้นเดือนหน้า', contact_phone:'082-345-6789', contact_line:'@pongcare', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Conversation Builder', resume:'' },
+  { id:'C003', firstname:'Boye', lastname:'Shaken', photo_id:'1m2iZLD6427zbY0xI2OfyTE5WDauiiief', tagline:'Revenue ไม่ได้มาจากโชค มันมาจากระบบ', purpose_tag:'Revenue Generator', experience:'10 ปี', skill_tags:'B2B Sales,CRM,Pipeline', language:'ไทย, อังกฤษ', work_type:'Full-time', expected_salary:'90,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'@boyecoach', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Revenue Generator', resume:'' },
+  { id:'C004', firstname:'Bill', lastname:'Burnett', photo_id:'1UWj2TjIWc_N7vaJBl3C4BLm9CO4MLkWw', tagline:'คนดีอยู่ที่ไหน องค์กรนั้นก็แข็งแกร่ง', purpose_tag:'People Connector', experience:'7 ปี', skill_tags:'HR,Recruitment,Culture', language:'ไทย', work_type:'Full-time', expected_salary:'65,000+', available_date:'2 สัปดาห์', contact_phone:'', contact_line:'', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'People Connector', resume:'' },
+  { id:'C005', firstname:'Nana', lastname:'Thiparat', photo_id:'1FEbJh88Uw5_ydQXi8NKlgvte8uRx8WOK', tagline:'ตัวเลขทุกตัวมีเรื่องราว ผมเป็นคนอ่านมันออก', purpose_tag:'Pattern Hunter', experience:'6 ปี', skill_tags:'Data Analytics,SQL,Power BI', language:'ไทย', work_type:'Full-time', expected_salary:'70,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'@nanapsych', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Pattern Hunter', resume:'' },
+  { id:'C006', firstname:'Arm', lastname:'Chalermchai', photo_id:'1Vuu014048MmZROenqm-bZ5Ma7Z9D1VFR', tagline:'ความสวยงามที่ดีคือสิ่งที่ผู้คนรู้สึกได้ก่อนอธิบายได้', purpose_tag:'Make Things Beauty', experience:'9 ปี', skill_tags:'UI/UX,Figma,Brand', language:'ไทย', work_type:'Freelance', expected_salary:'75,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Make Things Beauty', resume:'' }
+];
+
+const MOCK_CATS = ["All","System Architect","Conversation Builder","Revenue Generator","People Connector","Money Guardian","Make Things Beauty","Flow Planner","Trust Keeper","Pattern Hunter"];
+
+// STATE
+let allTalent = [];
+let activeCategories = ["All"];
+
+// HELPERS
+function photoURL(photo_id) {
+  if (!photo_id || photo_id.trim() === '') return null;
+  if (photo_id.startsWith('http')) return photo_id;
+  return `https://drive.google.com/thumbnail?id=${photo_id.trim()}&sz=w400`;
+}
+
+function avatarSVG() {
+  return `<div class="avatar-placeholder">
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="22" r="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <path d="M8 58c0-13.255 10.745-24 24-24s24 10.745 24 24" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>`;
+}
+
+function imgOrAvatar(photo_id) {
+  const url = photoURL(photo_id);
+  if (url) {
+    return `<img src="${url}" alt="photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="avatar-placeholder" style="display:none;">${avatarSVG()}</div>`;
+  }
+  return avatarSVG();
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// FETCH
+async function fetchFromSheet(range) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+  const res  = await fetch(url);
+  const json = await res.json();
+  return json.values || [];
+}
+
+async function initData() {
+  if (USE_MOCK) {
+    allTalent = shuffleArray(MOCK_DATA);
+    buildTabs(MOCK_CATS);
+    buildGrid(allTalent);
+    return;
+  }
+
+  try {
+    const [docsRows, catsRows] = await Promise.all([
+      fetchFromSheet(RANGE_DOCS),
+      fetchFromSheet(RANGE_CATS)
+    ]);
+
+    const rawDocs = docsRows.map(r => ({
+      id:               r[0]  || '',
+      firstname:        r[1]  || '',
+      lastname:         r[2]  || '',
+      photo_id:         r[3]  || '',
+      description:      r[4]  || '',
+      i_do_good:        r[5]  || '',
+      experience:       r[6]  || '',
+      skill_tags:       r[7]  || '',
+      language:         r[8]  || '',
+      work_type:        r[9]  || '',
+      expected_salary:  r[10] || '',
+      available_date:   r[11] || '',
+      contact_phone:    r[12] || '',
+      contact_line:     r[13] || '',
+      contact_email:    r[14] || '',
+      work_zone:        r[15] || '',
+      youtube:          r[16] || '',
+      instagram:        r[17] || '',
+      tiktok:           r[18] || '',
+      status:           r[19] || 'FALSE',
+      purpose_category: r[20] || '',
+      resume:           r[21] || '',
+    }));
+
+    allTalent = shuffleArray(rawDocs.filter(c => c.status === 'TRUE' || c.status === true));
+    const categories = ["All", ...catsRows.map(row => row[0]).filter(c => c && c !== "All")];
+    buildTabs(categories);
+    buildGrid(allTalent);
+    initViewToggle();
+    initCreateButton();
+    checkDeepLink();
+  } catch(err) {
+    console.error('Failed to load data:', err);
+    document.getElementById('grid').innerHTML = '<p style="color:#6E6E73;padding:20px;font-size:14px;text-align:center;grid-column:1/-1;">Failed to load data. Please try again.</p>';
+  }
+}
+
+// BUILD TABS
+function buildTabs(categories) {
+  const wrapper = document.getElementById('tabs-wrapper');
+  wrapper.innerHTML = categories.map(cat => {
+    const isAll = cat === "All";
+    return `<button class="tab-btn ${isAll ? 'active' : ''}" id="tab-${cat}" data-cat="${cat}" onclick="handleTabClick('${cat}')">${cat}</button>`;
+  }).join('');
+}
+
+function handleTabClick(cat) {
+  activeCategories = [cat];
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(`tab-${cat}`).classList.add('active');
+  handleFilterChange();
+}
+
+// FILTER
+function handleFilterChange() {
+  const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
+  const alphabetVal = document.getElementById('sort-select').value;
+
+  const searchNumber = searchVal.replace(/,/g, '').replace(/\+/g, '').replace(/\s/g, '');
+
+  const filtered = allTalent.filter(c => {
+    const fullname = `${c.firstname} ${c.lastname}`.toLowerCase();
+
+    const salaryNumber = (c.expected_salary || '').replace(/,/g, '').replace(/\+/g, '').replace(/\s/g, '');
+    const matchesSalary = searchNumber && salaryNumber && salaryNumber.includes(searchNumber);
+
+    const matchesSearch = 
+      fullname.includes(searchVal) ||
+      (c.i_do_good || '').toLowerCase().includes(searchVal) ||
+      (c.description || '').toLowerCase().includes(searchVal) ||
+      (c.purpose_category || '').toLowerCase().includes(searchVal) ||
+      (c.skill_tags || '').toLowerCase().includes(searchVal) ||
+      (c.experience || '').toLowerCase().includes(searchVal) ||
+      (c.language || '').toLowerCase().includes(searchVal) ||
+      (c.work_type || '').toLowerCase().includes(searchVal) ||
+      (c.work_zone || '').toLowerCase().includes(searchVal) ||
+      matchesSalary ||
+      (c.available_date || '').toLowerCase().includes(searchVal);
+
+    const matchesAlpha = !alphabetVal || c.firstname.toUpperCase().startsWith(alphabetVal);
+
+    let matchesCategory = false;
+    if (activeCategories.includes("All")) {
+      matchesCategory = true;
+    } else {
+      const personCats = c.purpose_category.split(',').map(s => s.trim());
+      matchesCategory = activeCategories.some(cat => personCats.includes(cat));
+    }
+
+    return matchesSearch && matchesAlpha && matchesCategory;
+  });
+
+  buildGrid(filtered);
+}
+
+// BUILD GRID
+function buildGrid(talent) {
+  const descBar = document.getElementById('cat-desc-bar');
+  const activeCat = activeCategories.length === 1 && activeCategories[0] !== 'All' ? activeCategories[0] : null;
+  if (descBar) {
+    if (activeCat && CAT_DESC[activeCat]) {
+      const d = CAT_DESC[activeCat];
+      const color = CAT_COLORS[activeCat] || '#8E8E93';
+      descBar.style.display = 'block';
+      descBar.style.borderLeftColor = color;
+      descBar.innerHTML = `<strong style="color:${color}">${activeCat}</strong> — ${d.sub}<br><span style="font-size:12px;color:#6E6E73;">เทียบได้กับ: ${d.roles}</span>`;
+    } else {
+      descBar.style.display = 'none';
+    }
+  }
+  const grid = document.getElementById('grid');
+  if (talent.length === 0) {
+    grid.innerHTML = '<p style="color:#6E6E73;grid-column:1/-1;text-align:center;padding:60px 0;font-size:14px;">No talent found.</p>';
+    return;
+  }
+  grid.innerHTML = talent.map(c => {
+    const primaryCat = c.purpose_category ? c.purpose_category.split(',')[0].trim() : '';
+    const isAvailable = (c.available_date || '').includes('ทันที') || (c.available_date || '').toLowerCase().includes('now');
+    const iDoGood = c.i_do_good || c.purpose_tag || '';
+    return `
+    <div class="thumb-card" data-cat="${primaryCat}" onclick="openModal('${c.id}')">
+      <div class="thumb-img">${imgOrAvatar(c.photo_id)}</div>
+      <div class="thumb-info">
+        <div class="thumb-name">${c.firstname}<br>${c.lastname}</div>
+        <div class="thumb-purpose">${iDoGood}</div>
+        <div class="thumb-meta">
+          ${c.expected_salary ? `<div class="thumb-meta-row">💰 ${c.expected_salary}</div>` : ''}
+          <div class="thumb-meta-row" style="gap:6px;flex-wrap:wrap;margin-top:2px;">
+            ${c.purpose_category ? `<span class="thumb-badge" style="background:${getCatColor(c.purpose_category)}20; color:${getCatColor(c.purpose_category)};">${c.purpose_category.split(',')[0]}</span>` : ''}
+            ${c.work_type ? `<span class="thumb-badge">${c.work_type}</span>` : ''}
+            ${isAvailable ? `<span class="thumb-badge available">พร้อมทันที</span>` : ''}
+          </div>
+        </div>
+      </div>
+      ${c.work_zone ? `<div class="line-workzone">📍 ${c.work_zone}</div>` : ''}
+      <div class="line-sentence">💬 ${iDoGood}</div>
+    </div>`;
+  }).join('');
+}
+
+// MODAL
+let currentId = null;
+
+function openModal(id) {
+  const c = allTalent.find(x => x.id === id);
+  if (!c) return;
+  currentId = id;
+
+  const tags = (c.skill_tags || '').split(',')
+    .filter(t => t.trim())
+    .map(t => `<span class="tag">${t.trim()}</span>`)
+    .join('');
+
+  const infoRows = [
+    ['Capability', c.purpose_category || ''],
+    ['What I Do Best ⭐', c.i_do_good || ''],
+    ['Experience', c.experience],
+    ['Language',   c.language],
+    ['Work Type',  c.work_type],
+    ['Work zone',  c.work_zone || ''],
+    ['Expected',   c.expected_salary ? c.expected_salary + ' บาท' : ''],
+    ['Available',  c.available_date],
+  ].filter(([,v]) => v && v.trim())
+   .map(([l,v]) => `<span class="info-label">${l}</span><span class="info-value">${v}</span>`)
+   .join('');
+
+  const contacts = [];
+  if (c.contact_line)  contacts.push(`<button class="contact-btn" onclick="openLink('https://line.me/ti/p/${encodeURIComponent(c.contact_line)}')">💬 LINE</button>`);
+  if (c.contact_phone) contacts.push(`<button class="contact-btn" onclick="openLink('tel:${c.contact_phone}')">📞 Call</button>`);
+  if (c.contact_email) contacts.push(`<button class="contact-btn" onclick="openLink('mailto:${c.contact_email}')">✉️ Email</button>`);
+  if (c.website)       contacts.push(`<button class="contact-btn" onclick="openLink('https://${c.website}')">🌐 Website</button>`);
+  if (c.instagram)     contacts.push(`<button class="contact-btn" onclick="openLink('https://instagram.com/${c.instagram.replace('@','')}')">📷 Instagram</button>`);
+  if (c.youtube)       contacts.push(`<button class="contact-btn" onclick="openLink('${c.youtube}')">▶ YouTube</button>`);
+  if (c.tiktok)        contacts.push(`<button class="contact-btn" onclick="openLink('https://tiktok.com/@${c.tiktok.replace('@','')}')">🎵 TikTok</button>`);
+  if (c.resume)        contacts.push(`<button class="contact-btn resume-btn" onclick="openLink('${c.resume}')">📄 Resume</button>`);
+  contacts.push(`<button class="contact-btn share-btn" onclick="shareProfile('${id}')">🔗 Share</button>`);
+
+  document.getElementById('modal-body').innerHTML = `
+    <div class="profile-top">
+      <div class="profile-img" onclick="openLightbox('${c.photo_id}')">${imgOrAvatar(c.photo_id)}</div>
+      <p class="note-text">"${c.description}"</p>
+    </div>
+    <div class="profile-name">
+      <div class="fname">${c.firstname}</div>
+      <div class="lname">${c.lastname}</div>
+    </div>
+    ${tags ? `<div class="tags">${tags}</div>` : ''}
+    <div class="info-grid">${infoRows}</div>
+    <div class="contact-section">
+      <div class="contact-title">Contact</div>
+      <div class="contact-links">${contacts.join('')}</div>
+    </div>
+  `;
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('home-bar').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('home-bar').classList.remove('visible');
+  document.body.style.overflow = '';
+  currentId = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function openLightbox(photo_id) {
+  const url = photoURL(photo_id);
+  if (!url) return;
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox-overlay').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox-overlay').classList.remove('open');
+}
+
+async function shareProfile(id) {
+  const c = allTalent.find(x => x.id === id);
+  if (!c) return;
+  const shareURL  = `${window.location.href.split('?')[0]}?id=${id}`;
+  const shareText = `Recommended Talent: ${c.firstname} ${c.lastname} — ${c.i_do_good}\nView profile on Candi`;
+  if (navigator.share) {
+    try { await navigator.share({ title: `${c.firstname} ${c.lastname}`, text: shareText, url: shareURL }); } catch(e) {}
+  } else {
+    try {
+      await navigator.clipboard.writeText(`${shareText}\n${shareURL}`);
+      showToast('Link copied ✓');
+    } catch(e) { showToast('Copy failed. Please copy URL manually.'); }
+  }
+}
+
+function checkDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (id) setTimeout(() => openModal(id), 200);
+}
+
+function openLink(url) { window.open(url, '_blank'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// View Toggle
+function initViewToggle() {
+  const cardBtn = document.getElementById('view-card');
+  const lineBtn = document.getElementById('view-line');
+  const grid = document.getElementById('grid');
+  
+  if (!cardBtn || !lineBtn || !grid) return;
+  
+  function setView(view) {
+    if (view === 'line') {
+      grid.classList.remove('card-view');
+      grid.classList.add('line-view');
+      cardBtn.classList.remove('active');
+      lineBtn.classList.add('active');
+      localStorage.setItem('candi_view', 'line');
+    } else {
+      grid.classList.remove('line-view');
+      grid.classList.add('card-view');
+      lineBtn.classList.remove('active');
+      cardBtn.classList.add('active');
+      localStorage.setItem('candi_view', 'card');
+    }
+  }
+  
+  cardBtn.addEventListener('click', () => setView('card'));
+  lineBtn.addEventListener('click', () => setView('line'));
+  
+  const savedView = localStorage.getItem('candi_view') || 'card';
+  setView(savedView);
+}
+
+// เรียกใน initData() หลัง buildGrid(allTalent) บรรทัดสุดท้ายก่อนปิด function
+// เพิ่ม: initViewToggle();
+
+// Create Profile Button
+function initCreateButton() {
+  const btn = document.getElementById('createEditBtn');
+  if (!btn) return;
+  
+  btn.addEventListener('click', () => {
+    const action = confirm('คุณต้องการทำอะไร?\n\n• กด OK → สร้างโปรไฟล์ใหม่\n• กด Cancel → แก้ไข/ลบโปรไฟล์');
+    
+    if (action) {
+      // กด OK → ไปสร้างโปรไฟล์ใหม่
+      window.open('create.html', '_blank');
+    } else {
+      // กด Cancel → ไปแก้ไข/ลบ
+      window.open('edit.html', '_blank');
+    }
+  });
+}
+
+(() => { initData(); })();
+
+
+
+</script>
+</body>
+</html>

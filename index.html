@@ -913,7 +913,7 @@
 const SHEET_ID   = '1grSMSRuWMvC5F5V82tMY0PJwV4WBHUn7OijZ6j3_Zxg';
 const API_KEY    = 'AIzaSyAIbTx6x5mDZC9_rgFcRpHeq4mx2tdNMII';
 const RANGE_DOCS = 'Sheet1!A2:V10000';
-const RANGE_CATS = 'Categories!A2:A100';
+const RANGE_CATS = 'Categories!A2:A20';
 const USE_MOCK   = false;
 const PROXY_URL  = 'https://script.google.com/macros/s/AKfycbzE__6rDOX52X4gJSfo1sNF57Wd-VuFmBeVXtpFtiyjawic-M2gJC1hcPA4qRTpSi7L/exec';
 
@@ -1015,6 +1015,7 @@ function shuffleArray(array) {
 
 // FETCH
 async function fetchFromSheet(range) {
+  const cacheBuster = `&_=${Date.now()}`;
   const targetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
   const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
   const res = await fetch(proxyUrl);

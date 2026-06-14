@@ -178,14 +178,13 @@
     display: none;
   }
 
-  /* ===== CAPABILITY SECTION - FIXED ===== */
+  /* ===== CAPABILITY SECTION - FINAL FIX ===== */
   .checkbox-group-vertical {
     display: flex;
     flex-direction: column;
     gap: 16px;
     margin-top: 8px;
     padding-left: 0;
-    align-items: flex-start;
   }
 
   .capability-item {
@@ -193,14 +192,11 @@
     background: transparent;
     border-left: 4px solid var(--border);
     margin-left: 0;
-    text-align: left;
-    width: 100%;
   }
 
   .capability-item label {
     font-weight: 600;
-    display: flex;
-    flex-wrap: nowrap;
+    display: inline-flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 6px;
@@ -520,9 +516,7 @@
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBSKtA-RW4vy7HPqFairWgDHyG-1s2PkjpKWCtR_yc5anTt2AxaOz_hIaA96U27c0U/exec';
-  // ─────────────────────────────────────────────
-  // DYNAMIC FIELDS
-  // ─────────────────────────────────────────────
+  // DYNAMIC FIELDS (same as before)
   function updateRemoveButtons() {
     const skillItems = document.querySelectorAll('#skillContainer .dynamic-field-item');
     skillItems.forEach((item, i) => {
@@ -572,12 +566,10 @@
   }));
   updateRemoveButtons();
 
-  // zone button
   document.getElementById('allZoneBtn')?.addEventListener('click', () => {
     document.getElementById('zone').value = 'กทม. (ทุกเขต)';
   });
 
-  // counters
   const idoField = document.getElementById('ido');
   const descField = document.getElementById('desc');
   if (idoField) idoField.addEventListener('input', () => {
@@ -587,7 +579,6 @@
     document.getElementById('descCounter').textContent = descField.value.length;
   });
 
-  // validate URL
   function isValidUrl(url) {
     if (!url) return true;
     return url.startsWith('http://') || url.startsWith('https://');
@@ -602,7 +593,6 @@
     }
   }
 
-  // generate edit code
   function generateEditCode() {
     const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
     let code = '';
@@ -612,7 +602,6 @@
     return code;
   }
 
-  // submit form
   document.getElementById('createForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -699,15 +688,13 @@
     console.log('Sending payload:', payload);
 
     try {
-      const response = await fetch(SCRIPT_URL, {
+      await fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
   
-      // เนื่องจาก mode: 'no-cors' จะอ่าน response ไม่ได้
-      // ให้แสดง Popup ทันที (สมมติว่าสำเร็จ)
       document.getElementById('editCodeDisplay').textContent = editCode;
       document.getElementById('popupOverlay').classList.add('open');
   

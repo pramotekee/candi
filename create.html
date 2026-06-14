@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>Candi — Create Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -146,30 +146,6 @@
   .checkbox-group input {
     width: auto;
     margin: 0;
-  /* ป้องกัน scrollbar กินพื้นที่ */
-.checkbox-group-vertical,
-.capability-item {
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-}
-
-/* หรือใช้วิธีตัดไม่ให้ scrollbar ปรากฏบน container หลัก */
-.checkbox-group-vertical {
-  overflow-y: visible;
-}
-
-/* ถ้าต้องการให้ scrollbar ไม่แวบ */
-.capability-item label {
-  padding-right: 4px; /* เผื่อพื้นที่ scrollbar */
-}
-
-/* สำหรับ Windows + Chrome/Edge */
-@media screen and (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 8px;
-    background: transparent;
-  }
-}
   }
   .zone-btn {
     background: var(--tag-bg);
@@ -218,16 +194,23 @@
     margin-left: 0;
   }
 
-  .capability-item label {
-    font-weight: 600;
-    display: inline-flex;
+  /* บังคับ checkbox + ชื่อหมวดให้ติดกัน ห่างแค่ 6px */
+  .capability-item .capability-label-wrapper {
+    display: flex;
     align-items: center;
-    gap: 4px ;
-    margin-bottom: 6px;
-    cursor: pointer;
+    gap: 6px;
     white-space: nowrap;
-    justify-content: flex-start;
-    width: auto; 
+    margin-bottom: 6px;
+  }
+
+  .capability-item .capability-label-wrapper input {
+    width: auto;
+    margin: 0;
+  }
+
+  .capability-item .capability-label-wrapper strong {
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   .capability-desc {
@@ -235,10 +218,6 @@
     color: var(--text-secondary);
     line-height: 1.4;
     margin-left: 24px;
-  }
-
-  .capability-item label strong {
-    margin-left: 0;
   }
 
   /* Popup */
@@ -299,15 +278,6 @@
     margin: 20px 0;
     border-color: var(--border);
   }
-  /* บังคับมือถือให้ระยะห่างเท่า PC ทุกกรณี */
-@media (max-width, max-width: 1000px) {
-  .capability-item label {
-    gap: 4px !important;
-    justify-content: flex-start !important;
-    width: auto !important;
-    display: inline-flex !important;
-  }
-}
 </style>
 </head>
 <body>
@@ -357,80 +327,80 @@
         <label>Capability (You can select multiple capability.) <span class="required">*</span></label>
         <div class="checkbox-group-vertical" id="capabilityGroup">
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="System Architect">
               <strong>System Architect</strong>
-            </label>
+            </div>
             <div class="capability-desc">ถนัดเรื่องการทำงานของระบบ โครงสร้าง เครือข่ายการรับส่งข้อมูลระหว่างกันได้อย่างมีประสิทธิภาพสูงสุด อาทิ Software Engineer, Tech Developer, IT Manager, System Admin, DevOps</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Conversation Builder">
               <strong>Conversation Builder</strong>
-            </label>
+            </div>
             <div class="capability-desc">ชอบสร้างการรับรู้ สร้างความสนใจ ทำให้ผู้คนคิด ตัดสินใจ และลงมือทำอะไรบางอย่าง อาทิ Marketing, Copywriter, Content Creator, PR, Communications Manager, Brand Storyteller</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Revenue Generator">
               <strong>Revenue Generator</strong>
-            </label>
+            </div>
             <div class="capability-desc">มองเห็นโอกาสในการสร้างยอดขายได้เสมอ รู้ว่าจะเปลี่ยนความต้องการของผู้คนให้กลายเป็นรายได้ยังไง อาทิ Sales, Business Development, Account Executive, Growth Manager</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="People Connector">
               <strong>People Connector</strong>
-            </label>
+            </div>
             <div class="capability-desc">เข้าใจความแตกต่างของผู้คน มองเห็นศักยภาพที่ซ่อนอยู่ และสร้างสภาพแวดล้อมที่ทำให้แต่ละคนอยากดึงสิ่งที่ดีที่สุดของตัวเองออกมา อาทิ HR, Recruiter, Talent Acquisition, Head Hunter, People & Culture</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Money Guardian">
               <strong>Money Guardian</strong>
-            </label>
+            </div>
             <div class="capability-desc">มองเห็นเรื่องราวที่ซ่อนอยู่หลังตัวเลขงบรับจ่าย เชื่อว่าการตัดสินใจที่ดีเริ่มต้นจากความรอบคอบและความรับผิดชอบต่อทรัพยากรที่มี อาทิ CFO, Finance Manager, Accountant, Financial Analyst, Cost Controller, Investment Analyst</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Visual Storyteller">
               <strong>Visual Storyteller</strong>
-            </label>
+            </div>
             <div class="capability-desc">เชื่อในพลังของภาพ สี รูปทรง และองค์ประกอบ สามารถถ่ายทอดความรู้สึกและความหมายได้ชัดเจนกว่าคำพูดมากมาย อาทิ Graphic Designer, UI/UX Designer, Art Director, Brand Designer, Visual Designer</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Flow Planner">
               <strong>Flow Planner</strong>
-            </label>
+            </div>
             <div class="capability-desc">มีความสุขกับการจัดระเบียบความซับซ้อน เชื่อมโยงทุกอย่างให้ดำเนินไปด้วยความราบรื่นเป็นระบบ ตรงเวลา ไม่มีสะดุด อาทิ Project Manager, Operations Manager, COO, Logistics, Event Manager</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Trust Keeper">
               <strong>Trust Keeper</strong>
-            </label>
+            </div>
             <div class="capability-desc">คนที่ทำให้ลูกค้ารู้สึกว่าได้รับการดูแลจริงๆ ใส่ใจในความรู้สึกของผู้คน รับฟังในสิ่งที่เขาไม่ได้พูดออกมา เข้าใจลูกค้าอย่างจริงใจ อาทิ Customer Success, Account Manager, Client Service, CX Manager</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Pattern Hunter">
               <strong>Pattern Hunter</strong>
-            </label>
+            </div>
             <div class="capability-desc">สนุกกับการค้นหารูปแบบ ความเชื่อมโยง และสัญญาณเล็ก ๆ ในข้อมูล เพื่อเปลี่ยนข้อเท็จจริงให้กลายเป็นมุมมองและการตัดสินใจที่ดีขึ้น อาทิ Data Analyst, Business Intelligence, Market Research, Insights Manager, Marketeer</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Hands-on Maker">
               <strong>Hands-on Maker</strong>
-            </label>
+            </div>
             <div class="capability-desc">ผู้ซ่อม สร้าง เสริม เติม แต่ง ปรับปรุง เพื่อให้สิ่งต่างๆ ที่พัง ชำรุดกลับมาใช้งานได้ หรือดียิ่งขึ้น อาทิ ช่างซ่อม, ช่างปะปา, ช่างไฟ, ช่างแอร์, ช่างเครื่อง, ช่างรับเหมาก่อสร้าง, นักทำความสะอาด, Maintenance Engineer, Fabricator, Craftsman, Repair Specialist</div>
           </div>
           <div class="capability-item">
-            <label>
+            <div class="capability-label-wrapper">
               <input type="checkbox" value="Path Guide">
               <strong>Path Guide</strong>
-            </label>
+            </div>
             <div class="capability-desc">เชื่อว่าประสบการณ์ที่สั่งสมมาไม่ควรหยุดอยู่แค่ความสำเร็จของตัวเอง แต่สามารถส่งต่อเป็นมุมมอง คำแนะนำ และบทเรียน เพื่อช่วยให้ผู้อื่นมองเห็นทางเลือก ตัดสินใจได้มั่นใจขึ้น และเติบโตได้เร็วขึ้น อาทิ Mentor, Career Coach, Executive Coach, Work Advisor, Industry Expert, Startup Mentor, Business Founder</div>
           </div>
         </div>
@@ -555,7 +525,9 @@
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBSKtA-RW4vy7HPqFairWgDHyG-1s2PkjpKWCtR_yc5anTt2AxaOz_hIaA96U27c0U/exec';
-  // DYNAMIC FIELDS (same as before)
+  // ─────────────────────────────────────────────
+  // DYNAMIC FIELDS
+  // ─────────────────────────────────────────────
   function updateRemoveButtons() {
     const skillItems = document.querySelectorAll('#skillContainer .dynamic-field-item');
     skillItems.forEach((item, i) => {
@@ -605,10 +577,12 @@
   }));
   updateRemoveButtons();
 
+  // zone button
   document.getElementById('allZoneBtn')?.addEventListener('click', () => {
     document.getElementById('zone').value = 'กทม. (ทุกเขต)';
   });
 
+  // counters
   const idoField = document.getElementById('ido');
   const descField = document.getElementById('desc');
   if (idoField) idoField.addEventListener('input', () => {
@@ -618,6 +592,7 @@
     document.getElementById('descCounter').textContent = descField.value.length;
   });
 
+  // validate URL
   function isValidUrl(url) {
     if (!url) return true;
     return url.startsWith('http://') || url.startsWith('https://');
@@ -632,6 +607,7 @@
     }
   }
 
+  // generate edit code
   function generateEditCode() {
     const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
     let code = '';
@@ -641,6 +617,7 @@
     return code;
   }
 
+  // submit form
   document.getElementById('createForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -749,7 +726,6 @@
       alert('เกิดข้อผิดพลาด: ' + err.message);
     }
   });
-
 </script>
 </body>
 </html>

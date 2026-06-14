@@ -299,6 +299,15 @@
     margin: 20px 0;
     border-color: var(--border);
   }
+  /* บังคับมือถือให้ระยะห่างเท่า PC ทุกกรณี */
+@media (max-width, max-width: 1000px) {
+  .capability-item label {
+    gap: 4px !important;
+    justify-content: flex-start !important;
+    width: auto !important;
+    display: inline-flex !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -740,6 +749,7 @@
       alert('เกิดข้อผิดพลาด: ' + err.message);
     }
   });
+
 </script>
 </body>
 </html>

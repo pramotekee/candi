@@ -1051,7 +1051,6 @@ async function initData() {
       edit_code:        r[22] || '',
       create_date:      r[23] || '',
       updated_date:     r[24] || '',
-      status:           r[25] || '',
     }));
 
     allTalent = shuffleArray(rawDocs.filter(c => c.status === 'TRUE' || c.status === true));

@@ -1004,18 +1004,11 @@ function shuffleArray(array) {
 
 // FETCH
 async function fetchFromSheet(range) {
-  try {
-    const res = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'getSheetData', range: range })
-    });
-    const json = await res.json();
-    return json.values || [];
-  } catch (err) {
-    console.error('Proxy fetch failed:', err);
-    return [];
-  }
+  const targetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  const res = await fetch(proxyUrl);
+  const json = await res.json();
+  return json.values || [];
 }
 
 async function initData() {

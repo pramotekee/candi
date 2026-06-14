@@ -174,6 +174,33 @@
     margin-top: 4px;
     display: none;
   }
+  .checkbox-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .capability-item {
+    padding: 8px 12px;
+    background: var(--tag-bg);
+    border-radius: 12px;
+    border-left: 4px solid transparent;
+  }
+
+  .capability-item label {
+    font-weight: 600;
+    cursor: pointer;
+    display: block;
+    margin-bottom: 6px;
+  } 
+
+  .capability-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-left: 24px;
+  }
 
   /* Popup */
   .popup-overlay {
@@ -238,85 +265,124 @@
 <body>
 <div class="container">
   <div class="card">
-    <h1>สร้างโปรไฟล์ใหม่</h1>
-    <div class="sub">กรอกข้อมูลให้ครบทุกช่องที่มี *</div>
+    <h1>Show the world who you are.</h1>
+    <div class="sub">Please complete all required fields(*).</div>
 
     <form id="createForm">
       <div class="form-row">
         <div class="form-group">
-          <label>ชื่อ <span class="required">*</span></label>
+          <label>Firstname <span class="required">*</span></label>
           <input type="text" id="firstname" required>
         </div>
         <div class="form-group">
-          <label>นามสกุล <span class="required">*</span></label>
+          <label>Lastname <span class="required">*</span></label>
           <input type="text" id="lastname" required>
         </div>
       </div>
 
       <div class="form-group">
-        <label>รูปโปรไฟล์ (URL) <span class="required">*</span></label>
+        <label>Profile Picture (URL) <span class="required">*</span></label>
         <input type="url" id="photo" placeholder="https://drive.google.com/thumbnail?id=..." required>
         <div class="error-msg" id="photoError"></div>
-        <small>⚠️ ต้องเป็นลิงก์ Google Drive ที่ตั้งค่า Anyone with the link can view</small>
+        <small>⚠️ Must be a Google Drive link with “Anyone with the link” access set to Viewer.</small>
       </div>
 
       <div class="form-group">
         <label>What I Do Best <span class="required">*</span></label>
+        <div class="hint" style="font-size: 11px; color: #6E6E73; margin-bottom: 6px;">
+          💡 ไม่ใช่รางวัลหรือประวัติที่ผ่านมา แต่เป็นสิ่งหนึ่งที่คุณมั่นใจว่าทำได้ดีที่สุด ถนัดที่สุด เก่งที่สุด มั่นใจว่ามีเรื่องอะไรทำได้ดี เขียนบอกมาเลย
+        </div>
         <textarea id="ido" maxlength="200" rows="2" required></textarea>
         <div class="char-counter"><span id="idoCounter">0</span>/200</div>
       </div>
 
       <div class="form-group">
-        <label>คำอธิบายเพิ่มเติม <span class="required">*</span></label>
+        <label>About me <span class="required">*</span></label>
+        <div class="hint" style="font-size: 11px; color: #6E6E73; margin-bottom: 6px;">
+          📝 เกี่ยวกับตัวคุณ แนะนำตัวให้ผู้อ่านรู้จักคุณเบื้องต้น อาจเล่าเรื่องราวของคุณ ประสบการณ์ แรงบันดาลใจ ความสนใจ สิ่งที่คุณทำ
+        </div>
         <textarea id="desc" maxlength="500" rows="3" required></textarea>
         <div class="char-counter"><span id="descCounter">0</span>/500</div>
       </div>
 
       <div class="form-group">
         <label>Capability (เลือกได้หลายหมวด) <span class="required">*</span></label>
-        <div class="checkbox-group" id="capabilityGroup">
-          <label><input type="checkbox" value="System Architect"> System Architect</label>
-          <label><input type="checkbox" value="Conversation Builder"> Conversation Builder</label>
-          <label><input type="checkbox" value="Revenue Generator"> Revenue Generator</label>
-          <label><input type="checkbox" value="People Connector"> People Connector</label>
-          <label><input type="checkbox" value="Money Guardian"> Money Guardian</label>
-          <label><input type="checkbox" value="Make Things Beauty"> Make Things Beauty</label>
-          <label><input type="checkbox" value="Flow Planner"> Flow Planner</label>
-          <label><input type="checkbox" value="Trust Keeper"> Trust Keeper</label>
-          <label><input type="checkbox" value="Pattern Hunter"> Pattern Hunter</label>
-          <label><input type="checkbox" value="Hands-on Maker"> Hands-on Maker</label>
+        <div class="checkbox-group-vertical" id="capabilityGroup">
+          <div class="capability-item">
+            <label><input type="checkbox" value="System Architect"> <strong>System Architect</strong></label>
+            <div class="capability-desc">ถนัดเรื่องการทำงานของระบบ โครงสร้าง เครือข่ายการรับส่งข้อมูลระหว่างกันได้อย่างมีประสิทธิภาพสูงสุด อาทิ Software Engineer, Tech Developer, IT Manager, System Admin, DevOps</div>
+          </div>
+          <div class="capability-item">
+            <label><input type="checkbox" value="Conversation Builder"> <strong>Conversation Builder</strong></label>
+            <div class="capability-desc">ชอบสร้างการรับรู้ สร้างความสนใจ ทำให้ผู้คนคิด ตัดสินใจ และลงมือทำอะไรบางอย่าง อาทิ Marketing, Copywriter, Content Creator, PR, Communications Manager, Brand Storyteller</div>
+          </div>
+          <div class="capability-item">
+            <label><input type="checkbox" value="Revenue Generator"> <strong>Revenue Generator</strong></label>
+            <div class="capability-desc">มองเห็นโอกาสในการสร้างยอดขายได้เสมอ รู้ว่าจะเปลี่ยนความต้องการของผู้คนให้กลายเป็นรายได้ยังไง อาทิ Sales, Business Development, Account Executive, Growth Manager</div>
+          </div>
+          <div class="capability-item">
+            <label><input type="checkbox" value="People Connector"> <strong>People Connector</strong></label>
+            <div class="capability-desc">เข้าใจความแตกต่างของผู้คน มองเห็นศักยภาพที่ซ่อนอยู่ และสร้างสภาพแวดล้อมที่ทำให้แต่ละคนอยากดึงสิ่งที่ดีที่สุดของตัวเองออกมา อาทิ HR, Recruiter, Talent Acquisition, Head Hunter, People & Culture</div>
+          </div>
+          <div class="capability-item">
+            <label><input type="checkbox" value="Money Guardian"> <strong>Money Guardian</strong></label>
+            <div class="capability-desc">มองเห็นเรื่องราวที่ซ่อนอยู่หลังตัวเลขงบรับจ่าย เชื่อว่าการตัดสินใจที่ดีเริ่มต้นจากความรอบคอบและความรับผิดชอบต่อทรัพยากรที่มี อาทิ CFO, Finance Manager, Accountant, Financial Analyst, Cost Controller, Investment Analyst</div>
+          </div>
+          <div class="capability-item">
+            <label><input type="checkbox" value="Visual Storyteller"> <strong>Make Things Beauty</strong></label>
+            <div class="capability-desc">เชื่อในพลังของภาพ สี รูปทรง และองค์ประกอบ สามารถถ่ายทอดความรู้สึกและความหมายได้ชัดเจนกว่าคำพูดมากมาย อาทิ Graphic Designer, UI/UX Designer, Art Director, Brand Designer, Visual Designer</div>
+          </div>
+          <div class="capability-item">
+            <label><input type="checkbox" value="Flow Planner"> <strong>Flow Planner</strong></label>
+            <div class="capability-desc">มีความสุขกับการจัดระเบียบความซับซ้อน เชื่อมโยงทุกอย่างให้ดำเนินไปด้วยความราบรื่นเป็นระบบ ตรงเวลา ไม่มีสะดุด อาทิ Project Manager, Operations Manager, COO, Logistics, Event Manager</div>
+          </div>
+          <div class="capability-item">
+            <label><input type="checkbox" value="Trust Keeper"> <strong>Trust Keeper</strong></label>
+            <div class="capability-desc">คนที่ทำให้ลูกค้ารู้สึกว่าได้รับการดูแลจริงๆ ใส่ใจในความรู้สึกของผู้คน รับฟังในสิ่งที่เขาไม่ได้พูดออกมา เข้าใจลูกค้าอย่างจริงใจ อาทิ Customer Success, Account Manager, Client Service, CX Manager</div>
+          </div>
+            <div class="capability-item">
+            <label><input type="checkbox" value="Pattern Hunter"> <strong>Pattern Hunter</strong></label>
+          <div class="capability-desc">สนุกกับการค้นหารูปแบบ ความเชื่อมโยง และสัญญาณเล็ก ๆ ในข้อมูล เพื่อเปลี่ยนข้อเท็จจริงให้กลายเป็นมุมมองและการตัดสินใจที่ดีขึ้น อาทิ Data Analyst, Business Intelligence, Market Research, Insights Manager, Marketeer</div>
+          </div>
+             <div class="capability-item">
+             <label><input type="checkbox" value="Hands-on Maker"> <strong>Hands-on Maker</strong></label>
+          <div class="capability-desc">ผู้ซ่อม สร้าง เสริม เติม แต่ง ปรับปรุง เพื่อให้สิ่งต่างๆ ที่พัง ชำรุดกลับมาใช้งานได้ หรือดียิ่งขึ้น อาทิ ช่างซ่อม, ช่างปะปา, ช่างไฟ, ช่างแอร์, ช่างเครื่อง, ช่างรับเหมาก่อสร้าง, นักทำความสะอาด, Maintenance Engineer, Fabricator, Craftsman, Repair Specialist</div>
+          </div>
+             <div class="capability-item">
+             <label><input type="checkbox" value="Path Guide"> <strong>Path Guide</strong></label>
+          <div class="capability-desc">เชื่อว่าประสบการณ์ที่สั่งสมมาไม่ควรหยุดอยู่แค่ความสำเร็จของตัวเอง แต่สามารถส่งต่อเป็นมุมมอง คำแนะนำ และบทเรียน เพื่อช่วยให้ผู้อื่นมองเห็นทางเลือก ตัดสินใจได้มั่นใจขึ้น และเติบโตได้เร็วขึ้น อาทิ Mentor, Career Coach, Executive Coach, Work Advisor, Industry Expert, Startup Mentor, Business Founder</div>
         </div>
       </div>
 
       <div class="form-group">
-        <label>ประสบการณ์ <span class="required">*</span></label>
+        <label>Experience <span class="required">*</span></label>
         <input type="text" id="exp" placeholder="เช่น 3 ปี, จบใหม่" required>
       </div>
 
       <div class="form-group">
-        <label>ทักษะ (Skill Tags) <span class="required">*</span></label>
+        <label>Skill <span class="required">*</span></label>
         <div id="skillContainer" class="dynamic-field-group">
           <div class="dynamic-field-item">
-            <input type="text" placeholder="เช่น Python" class="skill-input">
+            <input type="text" placeholder="ระบุทักษะของคุณ" class="skill-input">
             <button type="button" class="remove-skill" style="display:none;">✕</button>
           </div>
         </div>
-        <button type="button" class="add-field-btn" id="addSkillBtn">+ เพิ่มทักษะ</button>
+        <button type="button" class="add-field-btn" id="addSkillBtn">+ Add</button>
       </div>
 
       <div class="form-group">
-        <label>ภาษา <span class="required">*</span></label>
+        <label>Language <span class="required">*</span></label>
         <div id="langContainer" class="dynamic-field-group">
           <div class="dynamic-field-item">
             <input type="text" placeholder="เช่น ไทย" class="lang-input">
             <button type="button" class="remove-lang" style="display:none;">✕</button>
           </div>
         </div>
-        <button type="button" class="add-field-btn" id="addLangBtn">+ เพิ่มภาษา</button>
+        <button type="button" class="add-field-btn" id="addLangBtn">+ Add</button>
       </div>
 
       <div class="form-group">
-        <label>รูปแบบงาน <span class="required">*</span></label>
+        <label>Work Type <span class="required">*</span></label>
         <div class="checkbox-group" id="workTypeGroup">
           <label><input type="checkbox" value="Full-time"> Full-time</label>
           <label><input type="checkbox" value="Freelance"> Freelance</label>
@@ -329,31 +395,31 @@
       </div>
 
       <div class="form-group">
-        <label>เงินเดือนที่คาดหวัง <span class="required">*</span></label>
+        <label>Expected Compensation (THB/month) <span class="required">*</span></label>
         <select id="salary" required>
-          <option value="">เลือกช่วงเงินเดือน</option>
-          <option>ต่ำกว่า 20,000</option>
+          <option value="">Select a range</option>
+          <option>< 20,000</option>
           <option>20,000 - 30,000</option>
           <option>30,001 - 40,000</option>
           <option>40,001 - 50,000</option>
           <option>50,001 - 70,000</option>
           <option>70,001 - 90,000</option>
           <option>90,001 - 120,000</option>
-          <option>120,001 ขึ้นไป</option>
+          <option>> 120,001 </option>
           <option>Negotiable</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label>วันที่พร้อมเริ่มงาน <span class="required">*</span></label>
-        <input type="text" id="available" placeholder="เช่น พร้อมทันที, 2 สัปดาห์" required>
+        <label>When can you start? <span class="required">*</span></label>
+        <input type="text" id="available" placeholder="เช่น พร้อมทันที, ต้นเดือนหน้า" required>
       </div>
 
       <div class="form-group">
-        <label>พื้นที่ทำงาน (Work zone) <span class="required">*</span></label>
+        <label>Work zone <span class="required">*</span></label>
         <div style="display: flex; gap: 8px;">
           <input type="text" id="zone" placeholder="เช่น สีลม, สาทร, บางนา" style="flex:1" required>
-          <button type="button" class="zone-btn" id="allZoneBtn">📍 รับทุกเขตในกทม.</button>
+          <button type="button" class="zone-btn" id="allZoneBtn">📍 All Bangkok</button>
         </div>
       </div>
 
@@ -363,12 +429,12 @@
       </div>
 
       <div class="form-group">
-        <label>เบอร์โทรศัพท์</label>
+        <label>Phone</label>
         <input type="tel" id="phone" placeholder="081-234-5678">
       </div>
 
       <div class="form-group">
-        <label>อีเมล</label>
+        <label>Email</label>
         <input type="email" id="email">
       </div>
 
@@ -384,7 +450,7 @@
       </div>
 
       <div class="form-group">
-        <label>Resume (URL) <span class="required">*</span></label>
+        <label>Portfolio/Resume (URL) <span class="required">*</span></label>
         <input type="url" id="resume" placeholder="https://drive.google.com/..." required>
         <div class="error-msg" id="resumeError"></div>
       </div>

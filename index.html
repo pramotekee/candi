@@ -232,7 +232,7 @@
   .tab-btn.active[data-cat="Revenue Generator"]    { background: var(--cat-revenue);     border-color: var(--cat-revenue); }
   .tab-btn.active[data-cat="People Connector"]     { background: var(--cat-people);      border-color: var(--cat-people); }
   .tab-btn.active[data-cat="Money Guardian"]       { background: var(--cat-money);       border-color: var(--cat-money); }
-  .tab-btn.active[data-cat="Make Things Beauty"]   { background: var(--cat-beauty);      border-color: var(--cat-beauty); }
+  .tab-btn.active[data-cat="Visual Storyteller"]   { background: var(--cat-beauty);      border-color: var(--cat-beauty); }
   .tab-btn.active[data-cat="Flow Planner"]         { background: var(--cat-flow);        border-color: var(--cat-flow); }
   .tab-btn.active[data-cat="Trust Keeper"]         { background: var(--cat-trust);       border-color: var(--cat-trust); }
   .tab-btn.active[data-cat="Pattern Hunter"]       { background: var(--cat-pattern);     border-color: var(--cat-pattern); }
@@ -292,7 +292,7 @@
   .thumb-card[data-cat="Revenue Generator"]    { border-color: var(--cat-revenue); }
   .thumb-card[data-cat="People Connector"]     { border-color: var(--cat-people); }
   .thumb-card[data-cat="Money Guardian"]       { border-color: var(--cat-money); }
-  .thumb-card[data-cat="Make Things Beauty"]   { border-color: var(--cat-beauty); }
+  .thumb-card[data-cat="Visual Storyteller"]   { border-color: var(--cat-beauty); }
   .thumb-card[data-cat="Flow Planner"]         { border-color: var(--cat-flow); }
   .thumb-card[data-cat="Trust Keeper"]         { border-color: var(--cat-trust); }
   .thumb-card[data-cat="Pattern Hunter"]       { border-color: var(--cat-pattern); }
@@ -833,7 +833,7 @@
   .grid.line-view .thumb-card[data-cat="Revenue Generator"]    { border-color: var(--cat-revenue); }
   .grid.line-view .thumb-card[data-cat="People Connector"]     { border-color: var(--cat-people); }
   .grid.line-view .thumb-card[data-cat="Money Guardian"]       { border-color: var(--cat-money); }
-  .grid.line-view .thumb-card[data-cat="Make Things Beauty"]   { border-color: var(--cat-beauty); }
+  .grid.line-view .thumb-card[data-cat="Visual Storyteller"]   { border-color: var(--cat-beauty); }
   .grid.line-view .thumb-card[data-cat="Flow Planner"]         { border-color: var(--cat-flow); }
   .grid.line-view .thumb-card[data-cat="Trust Keeper"]         { border-color: var(--cat-trust); }
   .grid.line-view .thumb-card[data-cat="Pattern Hunter"]       { border-color: var(--cat-pattern); }
@@ -971,10 +971,10 @@ const MOCK_DATA = [
   { id:'C003', firstname:'Boye', lastname:'Shaken', photo_id:'1m2iZLD6427zbY0xI2OfyTE5WDauiiief', tagline:'Revenue ไม่ได้มาจากโชค มันมาจากระบบ', purpose_tag:'Revenue Generator', experience:'10 ปี', skill_tags:'B2B Sales,CRM,Pipeline', language:'ไทย, อังกฤษ', work_type:'Full-time', expected_salary:'90,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'@boyecoach', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Revenue Generator', resume:'' },
   { id:'C004', firstname:'Bill', lastname:'Burnett', photo_id:'1UWj2TjIWc_N7vaJBl3C4BLm9CO4MLkWw', tagline:'คนดีอยู่ที่ไหน องค์กรนั้นก็แข็งแกร่ง', purpose_tag:'People Connector', experience:'7 ปี', skill_tags:'HR,Recruitment,Culture', language:'ไทย', work_type:'Full-time', expected_salary:'65,000+', available_date:'2 สัปดาห์', contact_phone:'', contact_line:'', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'People Connector', resume:'' },
   { id:'C005', firstname:'Nana', lastname:'Thiparat', photo_id:'1FEbJh88Uw5_ydQXi8NKlgvte8uRx8WOK', tagline:'ตัวเลขทุกตัวมีเรื่องราว ผมเป็นคนอ่านมันออก', purpose_tag:'Pattern Hunter', experience:'6 ปี', skill_tags:'Data Analytics,SQL,Power BI', language:'ไทย', work_type:'Full-time', expected_salary:'70,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'@nanapsych', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Pattern Hunter', resume:'' },
-  { id:'C006', firstname:'Arm', lastname:'Chalermchai', photo_id:'1Vuu014048MmZROenqm-bZ5Ma7Z9D1VFR', tagline:'ความสวยงามที่ดีคือสิ่งที่ผู้คนรู้สึกได้ก่อนอธิบายได้', purpose_tag:'Make Things Beauty', experience:'9 ปี', skill_tags:'UI/UX,Figma,Brand', language:'ไทย', work_type:'Freelance', expected_salary:'75,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Make Things Beauty', resume:'' }
+  { id:'C006', firstname:'Arm', lastname:'Chalermchai', photo_id:'1Vuu014048MmZROenqm-bZ5Ma7Z9D1VFR', tagline:'ความสวยงามที่ดีคือสิ่งที่ผู้คนรู้สึกได้ก่อนอธิบายได้', purpose_tag:'Visual Storyteller', experience:'9 ปี', skill_tags:'UI/UX,Figma,Brand', language:'ไทย', work_type:'Freelance', expected_salary:'75,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Visual Storyteller', resume:'' }
 ];
 
-const MOCK_CATS = ["All","System Architect","Conversation Builder","Revenue Generator","People Connector","Money Guardian","Make Things Beauty","Flow Planner","Trust Keeper","Pattern Hunter"];
+const MOCK_CATS = ["All","System Architect","Conversation Builder","Revenue Generator","People Connector","Money Guardian","Visual Storyteller","Flow Planner","Trust Keeper","Pattern Hunter"];
 
 // STATE
 let allTalent = [];

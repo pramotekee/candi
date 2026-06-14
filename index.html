@@ -1004,11 +1004,9 @@ function shuffleArray(array) {
 
 // FETCH
 async function fetchFromSheet(range) {
-  const res = await fetch(PROXY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getSheetData', range: range })
-  });
+  const targetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+  const res = await fetch(proxyUrl);
   const json = await res.json();
   return json.values || [];
 }

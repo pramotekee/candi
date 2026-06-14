@@ -1016,7 +1016,7 @@ function shuffleArray(array) {
 // FETCH
 async function fetchFromSheet(range) {
   const cacheBuster = `&_=${Date.now()}`;
-  const targetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+  const targetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}${cacheBuster}`;
   const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
   const res = await fetch(proxyUrl);
   const json = await res.json();

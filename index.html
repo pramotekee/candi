@@ -908,6 +908,7 @@ const API_KEY    = 'AIzaSyAIbTx6x5mDZC9_rgFcRpHeq4mx2tdNMII';
 const RANGE_DOCS = 'Sheet1!A2:V10000';
 const RANGE_CATS = 'Categories!A2:A100';
 const USE_MOCK   = false;
+const PROXY_URL  = 'https://script.google.com/macros/s/AKfycbzE__6rDOX52X4gJSfo1sNF57Wd-VuFmBeVXtpFtiyjawic-M2gJC1hcPA4qRTpSi7L/exec';
 
 // ─────────────────────────────────────────────
 // CATEGORY COLOR MAP
@@ -1003,9 +1004,11 @@ function shuffleArray(array) {
 
 // FETCH
 async function fetchFromSheet(range) {
-  const targetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
-  const proxyUrl = `https://cors-anywhere.herokuapp.com/${targetUrl}`;
-  const res = await fetch(proxyUrl);
+  const res = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'getSheetData', range: range })
+  });
   const json = await res.json();
   return json.values || [];
 }

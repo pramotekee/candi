@@ -31,6 +31,7 @@
     --cat-trust:       #4A90C4;
     --cat-pattern:     #D4832A;
     --cat-maker:       #8B5A2B;
+    --cat-pathguide:   #2E75F7;
     --cat-default:     #8E8E93;
   }
 
@@ -236,6 +237,7 @@
   .tab-btn.active[data-cat="Trust Keeper"]         { background: var(--cat-trust);       border-color: var(--cat-trust); }
   .tab-btn.active[data-cat="Pattern Hunter"]       { background: var(--cat-pattern);     border-color: var(--cat-pattern); }
   .tab-btn.active[data-cat="Hands-on Maker"]       { background: var(--cat-maker);       border-color: var(--cat-maker); } 
+  .tab-btn.active[data-cat="Path Guide"]           { background: var(--cat-pathguide);   border-color: var(--cat-pathguide); }
 
   /* ── RESPONSIVE GRID ── */
   .grid {
@@ -295,6 +297,7 @@
   .thumb-card[data-cat="Trust Keeper"]         { border-color: var(--cat-trust); }
   .thumb-card[data-cat="Pattern Hunter"]       { border-color: var(--cat-pattern); }
   .thumb-card[data-cat="Hands-on Maker"]       { border-color: var(--cat-maker); }
+  .thumb-card[data-cat="Path Guide"]           { border-color: var(--cat-pathguide); }
 
   .thumb-img {
     width: 100%;
@@ -835,6 +838,7 @@
   .grid.line-view .thumb-card[data-cat="Trust Keeper"]         { border-color: var(--cat-trust); }
   .grid.line-view .thumb-card[data-cat="Pattern Hunter"]       { border-color: var(--cat-pattern); }
   .grid.line-view .thumb-card[data-cat="Hands-on Maker"]       { border-color: var(--cat-maker); }
+  .grid.line-view .thumb-card[data-cat="Path Guide"]           { border-color: var(--cat-pathguide); }
 
 </style>
 </head>
@@ -919,11 +923,14 @@ const CAT_DESC = {
   'Revenue Generator':    { sub: 'มองเห็นโอกาสในการสร้างยอดขายได้เสมอ รู้ว่าจะเปลี่ยนความต้องการของผู้คนให้กลายเป็นรายได้ยังไง', roles: 'Sales Manager, Business Development, Account Executive, Growth Manager' },
   'People Connector':     { sub: 'เข้าใจความแตกต่างของผู้คน มองเห็นศักยภาพที่ซ่อนอยู่ และสร้างสภาพแวดล้อมที่ทำให้แต่ละคนอยากดึงสิ่งที่ดีที่สุดของตัวเองออกมา', roles: 'HR Manager, Recruiter, Talent Acquisition, People & Culture' },
   'Money Guardian':       { sub: 'มองเห็นเรื่องราวที่ซ่อนอยู่หลังตัวเลข และเชื่อว่าการตัดสินใจที่ดีเริ่มต้นจากความรอบคอบและความรับผิดชอบต่อทรัพยากรที่มี', roles: 'CFO, Finance Manager, Accountant, Financial Analyst, Cost Controller' },
-  'Make Things Beauty':   { sub: 'เชื่อในพลังของภาพ สี รูปทรง และองค์ประกอบ สามารถถ่ายทอดความรู้สึกและความหมายได้ชัดเจนกว่าคำพูดมากมาย', roles: 'Graphic Designer, UI/UX Designer, Art Director, Brand Designer' },
+  'Visual Storyteller':   { sub: 'เชื่อในพลังของภาพ สี รูปทรง และองค์ประกอบ สามารถถ่ายทอดความรู้สึกและความหมายได้ชัดเจนกว่าคำพูดมากมาย', roles: 'Graphic Designer, UI/UX Designer, Art Director, Brand Designer, Visual Designer, Store Designer, Room Makeover' },
   'Flow Planner':         { sub: 'มีความสุขกับการจัดระเบียบความซับซ้อน เชื่อมโยงทุกอย่างให้ดำเนินไปด้วยความราบรื่นเป็นระบบ ตรงเวลา ไม่มีสะดุด', roles: 'Project Manager, Operations Manager, COO, Logistics, Event Manager' },
   'Trust Keeper':         { sub: 'คนที่ทำให้ลูกค้ารู้สึกว่าได้รับการดูแลจริงๆ ใส่ใจในความรู้สึกของผู้คน รับฟังในสิ่งที่เขาไม่ได้พูดออกมา เข้าใจลูกค้าอย่างจริงใจ', roles: 'Customer Success, Account Manager, Client Service, CX Manager' },
   'Pattern Hunter':       { sub: 'สนุกกับการค้นหารูปแบบ ความเชื่อมโยง และสัญญาณเล็ก ๆ ในข้อมูล เพื่อเปลี่ยนข้อเท็จจริงให้กลายเป็นมุมมองและการตัดสินใจที่ดีขึ้น', roles: 'Data Analyst, Business Intelligence, Market Research, Insights Manager' },
   'Hands-on Maker':       { sub: 'ผู้ซ่อม สร้าง เสริม เติม แต่ง ปรับปรุง เพื่อให้สิ่งต่างๆ ที่พัง ชำรุดกลับมาใช้งานได้ หรือดียิ่งขึ้น', roles: 'ช่างซ่อม, ช่างปะปา, ช่างไฟ, ช่างแอร์, ช่างเครื่อง, ช่างรับเหมาก่อสร้าง, นักทำความสะอาด, Maintenance Engineer, Fabricator, Craftsman, Repair Specialist' },
+  'Path Guide': { 
+  sub: 'เชื่อว่าประสบการณ์ที่สั่งสมมาไม่ควรหยุดอยู่แค่ความสำเร็จของตัวเอง แต่สามารถส่งต่อเป็นมุมมอง คำแนะนำ และบทเรียน เพื่อช่วยให้ผู้อื่นมองเห็นทางเลือก ตัดสินใจได้มั่นใจขึ้น และเติบโตได้เร็วขึ้น', 
+  roles: 'Mentor, Career Coach, Executive Coach, Work Advisor, Industry Expert, Startup Mentor' },
 };
 
 const CAT_COLORS = {
@@ -937,6 +944,7 @@ const CAT_COLORS = {
   'Trust Keeper':         '#4A90C4',
   'Pattern Hunter':       '#D4832A',
   'Hands-on Maker':       '#8B5A2B',
+  'Path Guide':           '#2E75F7',
 };
 
 function getCatColor(catName) {

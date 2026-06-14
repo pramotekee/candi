@@ -374,8 +374,8 @@
     background: #E3F5EC;
     color: #1A7A3C;
   }
-  .card-view .thumb-card .line-workzone {
-    font-size: 9px !important;
+  .workzone {
+    font-size: 9px;
     margin-top: 4px;
   }
 
@@ -1178,7 +1178,7 @@ function buildGrid(talent) {
           </div>
         </div>
       </div>
-      ${c.work_zone ? `<div class="line-workzone">📍 ${c.work_zone}</div>` : ''}
+      ${c.work_zone ? `<div class="workzone">📍 ${c.work_zone}</div>` : ''}
       <div class="line-sentence">💬 ${iDoGood}</div>
     </div>`;
   }).join('');

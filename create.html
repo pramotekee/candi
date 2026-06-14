@@ -146,6 +146,30 @@
   .checkbox-group input {
     width: auto;
     margin: 0;
+  /* ป้องกัน scrollbar กินพื้นที่ */
+.checkbox-group-vertical,
+.capability-item {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+/* หรือใช้วิธีตัดไม่ให้ scrollbar ปรากฏบน container หลัก */
+.checkbox-group-vertical {
+  overflow-y: visible;
+}
+
+/* ถ้าต้องการให้ scrollbar ไม่แวบ */
+.capability-item label {
+  padding-right: 4px; /* เผื่อพื้นที่ scrollbar */
+}
+
+/* สำหรับ Windows + Chrome/Edge */
+@media screen and (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+}
   }
   .zone-btn {
     background: var(--tag-bg);

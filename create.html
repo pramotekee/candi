@@ -177,13 +177,15 @@
     margin-top: 4px;
     display: none;
   }
+
+  /* ===== CAPABILITY SECTION - FIXED ===== */
   .checkbox-group-vertical {
     display: flex;
     flex-direction: column;
     gap: 16px;
     margin-top: 8px;
     padding-left: 0;
-    align-items: flex-start; 
+    align-items: flex-start;
   }
 
   .capability-item {
@@ -193,33 +195,24 @@
     margin-left: 0;
     text-align: left;
   }
+
   .capability-item label {
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start !important;  
-      gap: 8px;
-      margin-bottom: 6px;
-      cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    white-space: nowrap;
   }
 
   .capability-desc {
-      font-size: 12px;
-      color: var(--text-secondary);
-      line-height: 1.4;
-      margin-left: 24px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-left: 24px;
   }
-  .capability-item {
-    text-align: left !important;
-}
-.capability-item label {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-}
-.checkbox-group-vertical {
-    padding-left: 0 !important;
-    margin-left: 0 !important;
-}
 
   /* Popup */
   .popup-overlay {
@@ -327,84 +320,86 @@
       <div class="form-group">
         <label>Capability (You can select multiple capability.) <span class="required">*</span></label>
         <div class="checkbox-group-vertical" id="capabilityGroup">
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="System Architect">
-      <strong>System Architect</strong>
-    </label>
-    <div class="capability-desc">ถนัดเรื่องการทำงานของระบบ โครงสร้าง เครือข่ายการรับส่งข้อมูลระหว่างกันได้อย่างมีประสิทธิภาพสูงสุด อาทิ Software Engineer, Tech Developer, IT Manager, System Admin, DevOps</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Conversation Builder">
-      <strong>Conversation Builder</strong>
-    </label>
-    <div class="capability-desc">ชอบสร้างการรับรู้ สร้างความสนใจ ทำให้ผู้คนคิด ตัดสินใจ และลงมือทำอะไรบางอย่าง อาทิ Marketing, Copywriter, Content Creator, PR, Communications Manager, Brand Storyteller</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Revenue Generator">
-      <strong>Revenue Generator</strong>
-    </label>
-    <div class="capability-desc">มองเห็นโอกาสในการสร้างยอดขายได้เสมอ รู้ว่าจะเปลี่ยนความต้องการของผู้คนให้กลายเป็นรายได้ยังไง อาทิ Sales, Business Development, Account Executive, Growth Manager</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="People Connector">
-      <strong>People Connector</strong>
-    </label>
-    <div class="capability-desc">เข้าใจความแตกต่างของผู้คน มองเห็นศักยภาพที่ซ่อนอยู่ และสร้างสภาพแวดล้อมที่ทำให้แต่ละคนอยากดึงสิ่งที่ดีที่สุดของตัวเองออกมา อาทิ HR, Recruiter, Talent Acquisition, Head Hunter, People & Culture</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Money Guardian">
-      <strong>Money Guardian</strong>
-    </label>
-    <div class="capability-desc">มองเห็นเรื่องราวที่ซ่อนอยู่หลังตัวเลขงบรับจ่าย เชื่อว่าการตัดสินใจที่ดีเริ่มต้นจากความรอบคอบและความรับผิดชอบต่อทรัพยากรที่มี อาทิ CFO, Finance Manager, Accountant, Financial Analyst, Cost Controller, Investment Analyst</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Visual Storyteller">
-      <strong>Visual Storyteller</strong>
-    </label>
-    <div class="capability-desc">เชื่อในพลังของภาพ สี รูปทรง และองค์ประกอบ สามารถถ่ายทอดความรู้สึกและความหมายได้ชัดเจนกว่าคำพูดมากมาย อาทิ Graphic Designer, UI/UX Designer, Art Director, Brand Designer, Visual Designer</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Flow Planner">
-      <strong>Flow Planner</strong>
-    </label>
-    <div class="capability-desc">มีความสุขกับการจัดระเบียบความซับซ้อน เชื่อมโยงทุกอย่างให้ดำเนินไปด้วยความราบรื่นเป็นระบบ ตรงเวลา ไม่มีสะดุด อาทิ Project Manager, Operations Manager, COO, Logistics, Event Manager</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Trust Keeper">
-      <strong>Trust Keeper</strong>
-    </label>
-    <div class="capability-desc">คนที่ทำให้ลูกค้ารู้สึกว่าได้รับการดูแลจริงๆ ใส่ใจในความรู้สึกของผู้คน รับฟังในสิ่งที่เขาไม่ได้พูดออกมา เข้าใจลูกค้าอย่างจริงใจ อาทิ Customer Success, Account Manager, Client Service, CX Manager</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Pattern Hunter">
-      <strong>Pattern Hunter</strong>
-    </label>
-    <div class="capability-desc">สนุกกับการค้นหารูปแบบ ความเชื่อมโยง และสัญญาณเล็ก ๆ ในข้อมูล เพื่อเปลี่ยนข้อเท็จจริงให้กลายเป็นมุมมองและการตัดสินใจที่ดีขึ้น อาทิ Data Analyst, Business Intelligence, Market Research, Insights Manager, Marketeer</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Hands-on Maker">
-      <strong>Hands-on Maker</strong>
-    </label>
-    <div class="capability-desc">ผู้ซ่อม สร้าง เสริม เติม แต่ง ปรับปรุง เพื่อให้สิ่งต่างๆ ที่พัง ชำรุดกลับมาใช้งานได้ หรือดียิ่งขึ้น อาทิ ช่างซ่อม, ช่างปะปา, ช่างไฟ, ช่างแอร์, ช่างเครื่อง, ช่างรับเหมาก่อสร้าง, นักทำความสะอาด, Maintenance Engineer, Fabricator, Craftsman, Repair Specialist</div>
-  </div>
-  <div class="capability-item">
-    <label>
-      <input type="checkbox" value="Path Guide">
-      <strong>Path Guide</strong>
-    </label>
-    <div class="capability-desc">เชื่อว่าประสบการณ์ที่สั่งสมมาไม่ควรหยุดอยู่แค่ความสำเร็จของตัวเอง แต่สามารถส่งต่อเป็นมุมมอง คำแนะนำ และบทเรียน เพื่อช่วยให้ผู้อื่นมองเห็นทางเลือก ตัดสินใจได้มั่นใจขึ้น และเติบโตได้เร็วขึ้น อาทิ Mentor, Career Coach, Executive Coach, Work Advisor, Industry Expert, Startup Mentor, Business Founder</div>
-  </div>
-</div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="System Architect">
+              <strong>System Architect</strong>
+            </label>
+            <div class="capability-desc">ถนัดเรื่องการทำงานของระบบ โครงสร้าง เครือข่ายการรับส่งข้อมูลระหว่างกันได้อย่างมีประสิทธิภาพสูงสุด อาทิ Software Engineer, Tech Developer, IT Manager, System Admin, DevOps</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Conversation Builder">
+              <strong>Conversation Builder</strong>
+            </label>
+            <div class="capability-desc">ชอบสร้างการรับรู้ สร้างความสนใจ ทำให้ผู้คนคิด ตัดสินใจ และลงมือทำอะไรบางอย่าง อาทิ Marketing, Copywriter, Content Creator, PR, Communications Manager, Brand Storyteller</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Revenue Generator">
+              <strong>Revenue Generator</strong>
+            </label>
+            <div class="capability-desc">มองเห็นโอกาสในการสร้างยอดขายได้เสมอ รู้ว่าจะเปลี่ยนความต้องการของผู้คนให้กลายเป็นรายได้ยังไง อาทิ Sales, Business Development, Account Executive, Growth Manager</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="People Connector">
+              <strong>People Connector</strong>
+            </label>
+            <div class="capability-desc">เข้าใจความแตกต่างของผู้คน มองเห็นศักยภาพที่ซ่อนอยู่ และสร้างสภาพแวดล้อมที่ทำให้แต่ละคนอยากดึงสิ่งที่ดีที่สุดของตัวเองออกมา อาทิ HR, Recruiter, Talent Acquisition, Head Hunter, People & Culture</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Money Guardian">
+              <strong>Money Guardian</strong>
+            </label>
+            <div class="capability-desc">มองเห็นเรื่องราวที่ซ่อนอยู่หลังตัวเลขงบรับจ่าย เชื่อว่าการตัดสินใจที่ดีเริ่มต้นจากความรอบคอบและความรับผิดชอบต่อทรัพยากรที่มี อาทิ CFO, Finance Manager, Accountant, Financial Analyst, Cost Controller, Investment Analyst</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Visual Storyteller">
+              <strong>Visual Storyteller</strong>
+            </label>
+            <div class="capability-desc">เชื่อในพลังของภาพ สี รูปทรง และองค์ประกอบ สามารถถ่ายทอดความรู้สึกและความหมายได้ชัดเจนกว่าคำพูดมากมาย อาทิ Graphic Designer, UI/UX Designer, Art Director, Brand Designer, Visual Designer</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Flow Planner">
+              <strong>Flow Planner</strong>
+            </label>
+            <div class="capability-desc">มีความสุขกับการจัดระเบียบความซับซ้อน เชื่อมโยงทุกอย่างให้ดำเนินไปด้วยความราบรื่นเป็นระบบ ตรงเวลา ไม่มีสะดุด อาทิ Project Manager, Operations Manager, COO, Logistics, Event Manager</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Trust Keeper">
+              <strong>Trust Keeper</strong>
+            </label>
+            <div class="capability-desc">คนที่ทำให้ลูกค้ารู้สึกว่าได้รับการดูแลจริงๆ ใส่ใจในความรู้สึกของผู้คน รับฟังในสิ่งที่เขาไม่ได้พูดออกมา เข้าใจลูกค้าอย่างจริงใจ อาทิ Customer Success, Account Manager, Client Service, CX Manager</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Pattern Hunter">
+              <strong>Pattern Hunter</strong>
+            </label>
+            <div class="capability-desc">สนุกกับการค้นหารูปแบบ ความเชื่อมโยง และสัญญาณเล็ก ๆ ในข้อมูล เพื่อเปลี่ยนข้อเท็จจริงให้กลายเป็นมุมมองและการตัดสินใจที่ดีขึ้น อาทิ Data Analyst, Business Intelligence, Market Research, Insights Manager, Marketeer</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Hands-on Maker">
+              <strong>Hands-on Maker</strong>
+            </label>
+            <div class="capability-desc">ผู้ซ่อม สร้าง เสริม เติม แต่ง ปรับปรุง เพื่อให้สิ่งต่างๆ ที่พัง ชำรุดกลับมาใช้งานได้ หรือดียิ่งขึ้น อาทิ ช่างซ่อม, ช่างปะปา, ช่างไฟ, ช่างแอร์, ช่างเครื่อง, ช่างรับเหมาก่อสร้าง, นักทำความสะอาด, Maintenance Engineer, Fabricator, Craftsman, Repair Specialist</div>
+          </div>
+          <div class="capability-item">
+            <label>
+              <input type="checkbox" value="Path Guide">
+              <strong>Path Guide</strong>
+            </label>
+            <div class="capability-desc">เชื่อว่าประสบการณ์ที่สั่งสมมาไม่ควรหยุดอยู่แค่ความสำเร็จของตัวเอง แต่สามารถส่งต่อเป็นมุมมอง คำแนะนำ และบทเรียน เพื่อช่วยให้ผู้อื่นมองเห็นทางเลือก ตัดสินใจได้มั่นใจขึ้น และเติบโตได้เร็วขึ้น อาทิ Mentor, Career Coach, Executive Coach, Work Advisor, Industry Expert, Startup Mentor, Business Founder</div>
+          </div>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Experience <span class="required">*</span></label>
         <input type="text" id="exp" placeholder="เช่น 3 ปี, จบใหม่" required>
@@ -726,20 +721,6 @@
     } catch (err) {
       alert('เกิดข้อผิดพลาด: ' + err.message);
     }
-
-    // TODO: ส่งไป Google Apps Script (จะแยกส่งทีหลัง)
-    // แสดง Popup
-    document.getElementById('editCodeDisplay').textContent = editCode;
-    document.getElementById('popupOverlay').classList.add('open');
-
-    // ปุ่ม copy
-    document.getElementById('copyCodeBtn').onclick = () => {
-      navigator.clipboard.writeText(editCode);
-      alert('คัดลอกรหัสแล้ว');
-    };
-    document.getElementById('backHomeBtn').onclick = () => {
-      window.location.href = 'index.html';
-    };
   });
 </script>
 </body>

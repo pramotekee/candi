@@ -1117,6 +1117,9 @@ function handleFilterChange() {
   const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
   const alphabetVal = document.getElementById('sort-select').value;
 
+  console.log('🔍 Searching for:', searchVal);
+  console.log('📋 Sample work_zone values:', allTalent.slice(0, 5).map(t => ({ name: t.firstname, zone: t.work_zone })));
+
   const searchNumber = searchVal.replace(/,/g, '').replace(/\+/g, '').replace(/\s/g, '');
 
   const filtered = allTalent.filter(c => {

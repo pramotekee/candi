@@ -1081,7 +1081,7 @@ function shuffleArray(array) {
 
 // FETCH
 async function fetchFromSheet(range) {
-  const proxyUrl = `https://script.google.com/macros/s/AKfycbxzGSrhcnHKykWEFtGhlntdjKdWbmmnhltSCrRe_G6UsunPgJJ9nVB073LX422FN7Mp/exec`;
+  const proxyUrl = `https://script.google.com/macros/s/AKfycbybAXpZzfT6NkZh8ooaq87Qk60PdBOV-eo_tLXGRDhjkxLMih52ZuEThKt7X3QwqyBX/exec`;
   const res = await fetch(proxyUrl);
   const json = await res.json();
   return json.values || [];

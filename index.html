@@ -1094,58 +1094,63 @@ async function fetchFromSheet(range) {
 }
 
 async function initData() {
+  const grid = document.getElementById('grid');
+  if (grid) grid.innerHTML = '<div class="no-talent">กำลังโหลดข้อมูล...</div>';
+  
   try {
-    const [docsRows, catsRows] = await Promise.all([
-      fetchFromSheet(RANGE_DOCS),
-      fetchFromSheet(RANGE_CATS)
-    ]);
-
-    const rawDocs = docsRows.map(r => ({
-      id:               r[0]  || '',
-      firstname:        r[1]  || '',
-      lastname:         r[2]  || '',
-      photo_id:         r[3]  || '',
-      description:      r[4]  || '',
-      i_do_good:        r[5]  || '',
-      experience:       r[6]  || '',
-      skill_tags:       r[7]  || '',
-      language:         r[8]  || '',
-      work_type:        r[9]  || '',
-      expected_salary:  r[10] || '',
-      available_date:   r[11] || '',
-      contact_phone:    r[12] || '',
-      contact_line:     r[13] || '',
-      contact_email:    r[14] || '',
-      work_zone:        r[15] || '',
-      youtube:          r[16] || '',
-      instagram:        r[17] || '',
-      tiktok:           r[18] || '',
-      status:           r[19] || 'FALSE',
-      purpose_category: r[20] || '',
-      resume:           r[21] || '',
-      edit_code:        r[22] || '',
-      create_date:      r[23] || '',
-      updated_date:     r[24] || '',
-    }));
-
-    allTalent = rawDocs.filter(c => c.status === 'TRUE' || c.status === true);
-    // randomize order
-    for (let i = allTalent.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [allTalent[i], allTalent[j]] = [allTalent[j], allTalent[i]];
-    }
+    const res = await fetch(PROXY_URL);
+    if (!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
     
-    let categories = ["All", ...catsRows.map(row => row[0]).filter(c => c && c !== "All")];
-    if (categories.length === 1) {
-      categories = ["All","System Architect","Conversation Builder","Revenue Generator","People Connector","Money Guardian","Visual Storyteller","Flow Planner","Trust Keeper","Pattern Hunter","Hands-on Maker","Path Guide"];
+    if (data && data.values && data.values.length > 0) {
+      // Mapping ข้อมูลตรงตามคอลัมน์ใน Google Sheet ของพี่เป๊ะๆ 100%
+      allTalent = data.values.map(r => ({
+        id:              r[0]  || '',
+        firstname:       r[1]  || '',
+        lastname:        r[2]  || '',
+        photo_id:        r[3]  || '',
+        description:     r[4]  || '',
+        i_do_good:       r[5]  || '',
+        experience:      r[6]  || '',
+        skill_tags:      r[7]  ? r[7].split(',').map(s => s.trim()) : [], // แปลง String ทักษะเป็น Array เพื่อให้ระบบลูปสร้างแท็กได้
+        language:        r[8]  || '',
+        work_type:       r[9]  || '',
+        expected_salary: r[10] || '',
+        available_date:  r[11] || '',
+        contact_phone:   r[12] || '',
+        contact_line:    r[13] || '',
+        contact_email:   r[14] || '',
+        work_zone:       r[15] || '',
+        youtube:         r[16] || '',
+        instagram:       r[17] || '',
+        tiktok:          r[18] || '',
+        status:          r[19] || 'FALSE',
+        purpose_category:r[20] || '',
+        resume:          r[21] || '',
+        edit_code:       r[22] || '',
+        create_date:     r[23] || '',
+        updated_date:    r[24] || ''
+      }));
+      
+      // กรองแถวว่างที่ไม่มี id ออก
+      allTalent = allTalent.filter(t => t.id !== '');
+      
+      // อัปเดต State ข้อมูลเริ่มต้นสำหรับการแบ่งหน้าและฟิลเตอร์
+      filteredTalent = [...allTalent];
+      currentPage = 1; 
+      
+      // รันคำสั่งทำงานหน้าจอตามระบบเดิมของพี่
+      buildGrid(filteredTalent);
+      initFilters();
+      initSearch();
+      initViewToggle();
+      checkDeepLink();
+    } else {
+      if (grid) grid.innerHTML = '<div class="no-talent">No talent found.</div>';
     }
-    buildTabs(categories);
-    buildGrid(allTalent);
-    initViewToggle();
-    checkDeepLink();
-  } catch(err) {
-    console.error('Failed to load data:', err);
-    document.getElementById('grid').innerHTML = '<p style="color:#6E6E73;padding:20px;font-size:14px;text-align:center;grid-column:1/-1;">Failed to load data. Please try again.</p>';
+  } catch (err) {
+    console.error('Error loading talents:', err);
+    if (grid) grid.innerHTML = `<div class="no-talent">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}</div>`;
   }
 }
 

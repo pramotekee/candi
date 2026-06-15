@@ -182,6 +182,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    text-decoration: none;
   }
 
   .create-btn:hover {
@@ -888,6 +889,17 @@
     color: var(--text-secondary);
   }
 
+  .pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+    padding-top: 16px;
+  }
 </style>
 </head>
 <body>
@@ -917,8 +929,8 @@
         <option value="Y">Y</option><option value="Z">Z</option>
       </select>
       <div style="display: flex; gap: 8px;">
-        <a href="create.html" target="_blank" class="create-btn" style="text-decoration: none;">➕ Create</a>
-        <a href="edit.html" target="_blank" class="create-btn" style="text-decoration: none; background: #8677E1;">✏️ Edit</a>
+        <a href="https://pramotekee.github.io/candi/create.html" target="_blank" class="create-btn" style="text-decoration: none;">➕ Create</a>
+        <a href="https://pramotekee.github.io/candi/edit.html" target="_blank" class="create-btn" style="text-decoration: none; background: #8677E1;">✏️ Edit</a>
       </div>
     </div>
 
@@ -927,7 +939,8 @@
       <button id="view-card" class="view-toggle-btn active">▦ Card</button>
       <button id="view-line" class="view-toggle-btn">≡ Line</button>
     </div>
-    <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px 20px; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px;">
+    
+    <div class="pagination-container">
       <div style="display: flex; align-items: center; gap: 12px;">
         <span style="font-size: 13px; color: var(--text-secondary);">Show</span>
         <select id="rowsPerPage" class="sort-select" style="width: auto; background: var(--surface);">
@@ -940,11 +953,12 @@
       <div style="display: flex; gap: 8px; align-items: center;">
         <div id="pageNumbers" style="display: flex; gap: 6px; align-items: center;"></div>
       </div>
-     </div>
+    </div>
 
-     <div id="cat-desc-bar" style="display:none;margin:0 16px 16px;padding:14px 16px;background:#fff;border-radius:12px;border-left:4px solid #000;font-size:13.5px;line-height:1.8;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
+    <div id="cat-desc-bar" style="display:none;margin:0 16px 16px;padding:14px 16px;background:#fff;border-radius:12px;border-left:4px solid #000;font-size:13.5px;line-height:1.8;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
     <div class="grid card-view" id="grid"></div>
-
+  </div>
+</div>
 
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal" id="modal">
@@ -972,12 +986,10 @@
 // ─────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────
-const SHEET_ID   = '1grSMSRuWMvC5F5V82tMY0PJwV4WBHUn7OijZ6j3_Zxg';
-const API_KEY    = 'AIzaSyAIbTx6x5mDZC9_rgFcRpHeq4mx2tdNMII';
+// ใช้ Google Apps Script URL ที่ใช้งานได้จริง (ไม่มี Mock Data)
+const PROXY_URL = 'https://script.google.com/macros/s/AKfycbxxgYwAgoEt4l-DiFL8rvD1KrLvFxASQ0L1F7oqwQo4vLp2g3CGQNWaMTRgsp5ZuEybSw/exec';
 const RANGE_DOCS = 'Sheet1!A2:V10000';
 const RANGE_CATS = 'Categories!A2:A20';
-const USE_MOCK   = false;
-const PROXY_URL  = 'https://script.google.com/macros/s/AKfycbzE__6rDOX52X4gJSfo1sNF57Wd-VuFmBeVXtpFtiyjawic-M2gJC1hcPA4qRTpSi7L/exec';
 
 // ─────────────────────────────────────────────
 // CATEGORY COLOR MAP
@@ -1018,33 +1030,15 @@ function getCatColor(catName) {
   return key ? CAT_COLORS[key] : '#8E8E93';
 }
 
-function normalizeNumber(str) {
-  if (!str) return '';
-  // ลบ comma, ลบ +, ลบ spaces, ลบตัวอักษรที่ไม่ใช่ตัวเลข
-  return str.toString().replace(/,/g, '').replace(/\+/g, '').replace(/\s/g, '');
-}
-
 // ─────────────────────────────────────────────
-// MOCK DATA
-// ─────────────────────────────────────────────
-const MOCK_DATA = [
-  { id:'C001', firstname:'Zara', lastname:'Manapayayam', photo_id:'1PwQs5kIUH9KUXpdNctomYmKes1ODMdcg', tagline:'ผมสร้าง system ที่ทำให้ทีมทำงานน้อยลงแต่ได้มากขึ้น', purpose_tag:'System Architect', experience:'8 ปี', skill_tags:'Python,React,AWS', language:'ไทย, อังกฤษ', work_type:'Full-time', expected_salary:'80,000+', available_date:'พร้อมทันที', contact_phone:'081-234-5678', contact_line:'@zaraclinic', contact_email:'zara@example.com', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'System Architect', resume:'' },
-  { id:'C002', firstname:'Pong', lastname:'Sawadan', photo_id:'1JBfKWL2tnNaFqO69Y9LdEMUJ4hdmseOi', tagline:'ผมเชื่อว่าคำพูดที่ถูกต้องเปิดประตูที่ปิดสนิทได้', purpose_tag:'Conversation Builder', experience:'5 ปี', skill_tags:'Copywriting,Content,Social Media', language:'ไทย', work_type:'Freelance', expected_salary:'50,000+', available_date:'ต้นเดือนหน้า', contact_phone:'082-345-6789', contact_line:'@pongcare', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Conversation Builder', resume:'' },
-  { id:'C003', firstname:'Boye', lastname:'Shaken', photo_id:'1m2iZLD6427zbY0xI2OfyTE5WDauiiief', tagline:'Revenue ไม่ได้มาจากโชค มันมาจากระบบ', purpose_tag:'Revenue Generator', experience:'10 ปี', skill_tags:'B2B Sales,CRM,Pipeline', language:'ไทย, อังกฤษ', work_type:'Full-time', expected_salary:'90,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'@boyecoach', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Revenue Generator', resume:'' },
-  { id:'C004', firstname:'Bill', lastname:'Burnett', photo_id:'1UWj2TjIWc_N7vaJBl3C4BLm9CO4MLkWw', tagline:'คนดีอยู่ที่ไหน องค์กรนั้นก็แข็งแกร่ง', purpose_tag:'People Connector', experience:'7 ปี', skill_tags:'HR,Recruitment,Culture', language:'ไทย', work_type:'Full-time', expected_salary:'65,000+', available_date:'2 สัปดาห์', contact_phone:'', contact_line:'', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'People Connector', resume:'' },
-  { id:'C005', firstname:'Nana', lastname:'Thiparat', photo_id:'1FEbJh88Uw5_ydQXi8NKlgvte8uRx8WOK', tagline:'ตัวเลขทุกตัวมีเรื่องราว ผมเป็นคนอ่านมันออก', purpose_tag:'Pattern Hunter', experience:'6 ปี', skill_tags:'Data Analytics,SQL,Power BI', language:'ไทย', work_type:'Full-time', expected_salary:'70,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'@nanapsych', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Pattern Hunter', resume:'' },
-  { id:'C006', firstname:'Arm', lastname:'Chalermchai', photo_id:'1Vuu014048MmZROenqm-bZ5Ma7Z9D1VFR', tagline:'ความสวยงามที่ดีคือสิ่งที่ผู้คนรู้สึกได้ก่อนอธิบายได้', purpose_tag:'Visual Storyteller', experience:'9 ปี', skill_tags:'UI/UX,Figma,Brand', language:'ไทย', work_type:'Freelance', expected_salary:'75,000+', available_date:'พร้อมทันที', contact_phone:'', contact_line:'', contact_email:'', website:'', youtube:'', instagram:'', tiktok:'', status:'TRUE', purpose_category:'Visual Storyteller', resume:'' }
-];
-
-const MOCK_CATS = ["All","System Architect","Conversation Builder","Revenue Generator","People Connector","Money Guardian","Visual Storyteller","Flow Planner","Trust Keeper","Pattern Hunter"];
-
 // STATE
+// ─────────────────────────────────────────────
 let allTalent = [];
 let activeCategories = ["All"];
 let currentPage = 1;
 let rowsPerPage = 100;
 let filteredTalent = [];
-let currentView = 'card'; // 'card' หรือ 'line'
+let currentView = 'card';
 
 // HELPERS
 function photoURL(photo_id) {
@@ -1071,52 +1065,34 @@ function imgOrAvatar(photo_id) {
   return avatarSVG();
 }
 
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-// FETCH
+// FETCH - ใช้ Proxy URL ที่กำหนด ไม่มี Mock Data
 async function fetchFromSheet(range) {
-  const proxyUrl = `https://script.google.com/macros/s/AKfycbxxgYwAgoEt4l-DiFL8rvD1KrLvFxASQ0L1F7oqwQo4vLp2g3CGQNWaMTRgsp5ZuEybSw/exec${cacheBuster}`;
-  const res = await fetch(proxyUrl);
-  const data = await res.json();
-  
-  // ถ้า data เป็น array (ไม่มี key 'values')
-  let rows = Array.isArray(data) ? data : (data.values || []);
-  
-  if (rows.length === 0) return [];
-  
-  // กำหนด header ตามคอลัมน์ในชีตของคุณ
-  const headers = [
-    'id', 'firstname', 'lastname', 'photo_id', 'description', 'i_do_good',
-    'experience', 'skill_tags', 'language', 'work_type', 'expected_salary',
-    'available_date', 'contact_phone', 'contact_line', 'contact_email',
-    'work_zone', 'youtube', 'instagram', 'tiktok', 'status',
-    'purpose_category', 'resume', 'edit_code', 'create_date', 'updated_date'
-  ];
-  
-  // แปลงแต่ละแถวให้เป็น object
-  return rows.map(row => {
-    let obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = row[i] || '';
+  const cacheBuster = Date.now();
+  const proxyUrl = `${PROXY_URL}?_=${cacheBuster}`;
+  try {
+    const res = await fetch(proxyUrl);
+    const data = await res.json();
+    let rows = Array.isArray(data) ? data : (data.values || []);
+    if (rows.length === 0) return [];
+    const headers = [
+      'id', 'firstname', 'lastname', 'photo_id', 'description', 'i_do_good',
+      'experience', 'skill_tags', 'language', 'work_type', 'expected_salary',
+      'available_date', 'contact_phone', 'contact_line', 'contact_email',
+      'work_zone', 'youtube', 'instagram', 'tiktok', 'status',
+      'purpose_category', 'resume', 'edit_code', 'create_date', 'updated_date'
+    ];
+    return rows.map(row => {
+      let obj = {};
+      headers.forEach((h, i) => obj[h] = row[i] || '');
+      return obj;
     });
-    return obj;
-  });
+  } catch(e) {
+    console.error('Fetch error:', e);
+    return [];
+  }
 }
 
 async function initData() {
-  if (USE_MOCK) {
-    allTalent = shuffleArray(MOCK_DATA);
-    buildTabs(MOCK_CATS);
-    buildGrid(allTalent);
-    return;
-  }
-
   try {
     const [docsRows, catsRows] = await Promise.all([
       fetchFromSheet(RANGE_DOCS),
@@ -1151,8 +1127,17 @@ async function initData() {
       updated_date:     r[24] || '',
     }));
 
-    allTalent = shuffleArray(rawDocs.filter(c => c.status === 'TRUE' || c.status === true));
-    const categories = ["All", ...catsRows.map(row => row[0]).filter(c => c && c !== "All")];
+    allTalent = rawDocs.filter(c => c.status === 'TRUE' || c.status === true);
+    // randomize order
+    for (let i = allTalent.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allTalent[i], allTalent[j]] = [allTalent[j], allTalent[i]];
+    }
+    
+    let categories = ["All", ...catsRows.map(row => row[0]).filter(c => c && c !== "All")];
+    if (categories.length === 1) {
+      categories = ["All","System Architect","Conversation Builder","Revenue Generator","People Connector","Money Guardian","Visual Storyteller","Flow Planner","Trust Keeper","Pattern Hunter","Hands-on Maker","Path Guide"];
+    }
     buildTabs(categories);
     buildGrid(allTalent);
     initViewToggle();
@@ -1165,9 +1150,6 @@ async function initData() {
 
 // Pagination Event Listeners
 const rowsPerPageSelect = document.getElementById('rowsPerPage');
-const prevBtn = document.getElementById('prevPageBtn');
-const nextBtn = document.getElementById('nextPageBtn');
-
 if (rowsPerPageSelect) {
   rowsPerPageSelect.addEventListener('change', (e) => {
     rowsPerPage = parseInt(e.target.value, 10);
@@ -1175,8 +1157,6 @@ if (rowsPerPageSelect) {
     buildGrid(filteredTalent);
   });
 }
-if (prevBtn) prevBtn.addEventListener('click', goPrevPage);
-if (nextBtn) nextBtn.addEventListener('click', goNextPage);
 
 // BUILD TABS
 function buildTabs(categories) {
@@ -1200,16 +1180,8 @@ function handleFilterChange() {
   const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
   const alphabetVal = document.getElementById('sort-select').value;
 
-  console.log('🔍 Searching for:', searchVal);
-  console.log('📋 Sample work_zone values:', allTalent.slice(0, 5).map(t => ({ name: t.firstname, zone: t.work_zone })));
-
-  const searchNumber = searchVal.replace(/,/g, '').replace(/\+/g, '').replace(/\s/g, '');
-
   const filtered = allTalent.filter(c => {
     const fullname = `${c.firstname} ${c.lastname}`.toLowerCase();
-
-    const salaryNumber = (c.expected_salary || '').replace(/,/g, '').replace(/\+/g, '').replace(/\s/g, '');
-    const matchesSalary = searchNumber && salaryNumber && salaryNumber.includes(searchNumber);
 
     const matchesSearch = 
       fullname.includes(searchVal) ||
@@ -1221,7 +1193,6 @@ function handleFilterChange() {
       (c.language || '').toLowerCase().includes(searchVal) ||
       (c.work_type || '').toLowerCase().includes(searchVal) ||
       (c.work_zone || '').toLowerCase().includes(searchVal) ||
-      matchesSalary ||
       (c.available_date || '').toLowerCase().includes(searchVal);
 
     const matchesAlpha = !alphabetVal || c.firstname.toUpperCase().startsWith(alphabetVal);
@@ -1230,7 +1201,7 @@ function handleFilterChange() {
     if (activeCategories.includes("All")) {
       matchesCategory = true;
     } else {
-      const personCats = c.purpose_category.split(',').map(s => s.trim());
+      const personCats = (c.purpose_category || '').split(',').map(s => s.trim());
       matchesCategory = activeCategories.some(cat => personCats.includes(cat));
     }
 
@@ -1240,12 +1211,66 @@ function handleFilterChange() {
   buildGrid(filtered);
 }
 
+// RENDER PAGE NUMBERS
+function renderPageNumbers() {
+  const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
+  const container = document.getElementById('pageNumbers');
+  if (!container) return;
+  
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+  
+  let html = '';
+  const maxVisible = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+  
+  if (endPage - startPage + 1 < maxVisible) {
+    startPage = Math.max(1, endPage - maxVisible + 1);
+  }
+  
+  if (currentPage > 1) {
+    html += `<button class="page-number" data-page="${currentPage - 1}">‹</button>`;
+  } else {
+    html += `<button class="page-number disabled" disabled>‹</button>`;
+  }
+  
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= startPage && i <= endPage)) {
+      const activeClass = i === currentPage ? 'active' : '';
+      html += `<button class="page-number ${activeClass}" data-page="${i}">${i}</button>`;
+    } else if (i === startPage - 1 || i === endPage + 1) {
+      html += `<span class="page-dots">...</span>`;
+    }
+  }
+  
+  if (currentPage < totalPages) {
+    html += `<button class="page-number" data-page="${currentPage + 1}">›</button>`;
+  } else {
+    html += `<button class="page-number disabled" disabled>›</button>`;
+  }
+  
+  container.innerHTML = html;
+  
+  document.querySelectorAll('.page-number[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const page = parseInt(btn.dataset.page, 10);
+      if (page !== currentPage && !isNaN(page)) {
+        currentPage = page;
+        buildGrid(filteredTalent);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  });
+}
+
 // BUILD GRID
 function buildGrid(talent) {
-  filteredTalent = talent; // เก็บ filtered ไว้ใช้ paginate
+  filteredTalent = talent;
   
   const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
-  // ปรับ currentPage ถ้าเกิน
   if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
   
@@ -1270,28 +1295,23 @@ function buildGrid(talent) {
   const grid = document.getElementById('grid');
   if (paginatedTalent.length === 0) {
     grid.innerHTML = '<p style="color:#6E6E73;grid-column:1/-1;text-align:center;padding:60px 0;font-size:14px;">No talent found.</p>';
-    document.getElementById('prevPageBtn').disabled = true;
-    document.getElementById('nextPageBtn').disabled = true;
-    document.getElementById('pageInfo').innerText = `Page 0 of 0`;
     return;
   }
 
-  // เลือกการแสดงผลตาม View
   const isCardView = grid.classList.contains('card-view');
   
   grid.innerHTML = paginatedTalent.map(c => {
     const primaryCat = c.purpose_category ? c.purpose_category.split(',')[0].trim() : '';
     const isAvailable = (c.available_date || '').includes('ทันที') || (c.available_date || '').toLowerCase().includes('now');
-    const iDoGood = c.i_do_good || c.purpose_tag || '';
+    const iDoGood = c.i_do_good || '';
     
     if (isCardView) {
-      // Card View
       return `
       <div class="thumb-card" data-cat="${primaryCat}" onclick="openModal('${c.id}')">
         <div class="thumb-img">${imgOrAvatar(c.photo_id)}</div>
         <div class="thumb-info">
           <div class="thumb-name">${c.firstname}<br>${c.lastname}</div>
-          <div class="thumb-purpose">${iDoGood}</div>
+          <div class="thumb-purpose">${iDoGood.substring(0, 100)}</div>
           <div class="thumb-meta">
             ${c.expected_salary ? `<div class="thumb-meta-row">💰 ${c.expected_salary}</div>` : ''}
             <div class="thumb-meta-row" style="gap:6px;flex-wrap:wrap;margin-top:2px;">
@@ -1302,16 +1322,15 @@ function buildGrid(talent) {
           </div>
         </div>
         ${c.work_zone ? `<div class="workzone">📍 ${c.work_zone}</div>` : ''}
-        <div class="line-sentence">💬 ${iDoGood}</div>
+        <div class="line-sentence">💬 ${iDoGood.substring(0, 80)}</div>
       </div>`;
     } else {
-      // Line View
       return `
       <div class="thumb-card" data-cat="${primaryCat}" onclick="openModal('${c.id}')">
         <div class="thumb-img">${imgOrAvatar(c.photo_id)}</div>
         <div class="thumb-info">
           <div class="thumb-name">${c.firstname}<br>${c.lastname}</div>
-          <div class="thumb-purpose">${iDoGood}</div>
+          <div class="thumb-purpose">${iDoGood.substring(0, 100)}</div>
           <div class="thumb-meta">
             ${c.expected_salary ? `<div class="thumb-meta-row">💰 ${c.expected_salary}</div>` : ''}
             <div class="thumb-meta-row" style="gap:6px;flex-wrap:wrap;margin-top:2px;">
@@ -1322,101 +1341,14 @@ function buildGrid(talent) {
           </div>
         </div>
         ${c.work_zone ? `<div class="line-workzone">📍 ${c.work_zone}</div>` : ''}
-        <div class="line-sentence">💬 ${iDoGood}</div>
+        <div class="line-sentence">💬 ${iDoGood.substring(0, 80)}</div>
       </div>`;
     }
   }).join('');
 
   renderPageNumbers();
-  
-  // อัปเดต Pagination Controls
-  document.getElementById('prevPageBtn').disabled = currentPage === 1;
-  document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
-  
-  // เก็บ currentView
   currentView = grid.classList.contains('card-view') ? 'card' : 'line';
 }
-
-function renderPageNumbers() {
-  const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
-  const container = document.getElementById('pageNumbers');
-  if (!container) return;
-  
-  if (totalPages <= 1) {
-    container.innerHTML = '';
-    return;
-  }
-  
-  let html = '';
-  const maxVisible = 5;
-  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-  
-  if (endPage - startPage + 1 < maxVisible) {
-    startPage = Math.max(1, endPage - maxVisible + 1);
-  }
-  
-  // < ปุ่ม
-  if (currentPage > 1) {
-    html += `<button class="page-number" data-page="${currentPage - 1}">‹</button>`;
-  } else {
-    html += `<button class="page-number disabled" disabled>‹</button>`;
-  }
-  
-  // แสดงเลขหน้า
-  for (let i = 1; i <= totalPages; i++) {
-    if (i === 1 || i === totalPages || (i >= startPage && i <= endPage)) {
-      const activeClass = i === currentPage ? 'active' : '';
-      html += `<button class="page-number ${activeClass}" data-page="${i}">${i}</button>`;
-    } else if (i === startPage - 1 || i === endPage + 1) {
-      html += `<span class="page-dots">...</span>`;
-    }
-  }
-  
-  // > ปุ่ม
-  if (currentPage < totalPages) {
-    html += `<button class="page-number" data-page="${currentPage + 1}">›</button>`;
-  } else {
-    html += `<button class="page-number disabled" disabled>›</button>`;
-  }
-  
-  container.innerHTML = html;
-  
-  document.querySelectorAll('.page-number[data-page]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const page = parseInt(btn.dataset.page, 10);
-      if (page !== currentPage && !isNaN(page)) {
-        currentPage = page;
-        buildGrid(filteredTalent);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
-  });
-}
-
-// ฟังค์ชั่นควบคุม Pagination
-function updatePagination() {
-  currentPage = 1;
-  buildGrid(filteredTalent);
-}
-
-function goPrevPage() {
-  if (currentPage > 1) {
-    currentPage--;
-    buildGrid(filteredTalent);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-}
-
-function goNextPage() {
-  const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
-  if (currentPage < totalPages) {
-    currentPage++;
-    buildGrid(filteredTalent);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-}
-
 
 // MODAL
 let currentId = null;
@@ -1458,7 +1390,7 @@ function openModal(id) {
   document.getElementById('modal-body').innerHTML = `
     <div class="profile-top">
       <div class="profile-img" onclick="openLightbox('${c.photo_id}')">${imgOrAvatar(c.photo_id)}</div>
-      <p class="note-text">"${c.description}"</p>
+      <p class="note-text">"${c.description || ''}"</p>
     </div>
     <div class="profile-name">
       <div class="fname">${c.firstname}</div>
@@ -1551,7 +1483,6 @@ function initViewToggle() {
       cardBtn.classList.add('active');
       localStorage.setItem('candi_view', 'card');
     }
-    // รีเฟรช grid หลังจากเปลี่ยน view
     if (filteredTalent) buildGrid(filteredTalent);
   }
   
@@ -1562,14 +1493,7 @@ function initViewToggle() {
   setView(savedView);
 }
 
-// เรียกใน initData() หลัง buildGrid(allTalent) บรรทัดสุดท้ายก่อนปิด function
-// เพิ่ม: initViewToggle();
-
-
 (() => { initData(); })();
-
-
-
 </script>
 </body>
 </html>

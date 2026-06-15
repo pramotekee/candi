@@ -1359,23 +1359,29 @@ function buildGrid(talent) {
       </div>`;
     } else {
       return `
-      <div class="thumb-card" data-cat="${primaryCat}" onclick="openModal('${c.id}')">
-        <div class="thumb-img">${imgOrAvatar(c.photo_id)}</div>
-        <div class="thumb-info">
-          <div class="thumb-name">${c.firstname}<br>${c.lastname}</div>
-          <div class="thumb-purpose">${iDoGood.substring(0, 100)}</div>
-          <div class="thumb-meta">
-            ${c.expected_salary ? `<div class="thumb-meta-row">💰 ${c.expected_salary}</div>` : ''}
-            <div class="thumb-meta-row" style="gap:6px;flex-wrap:wrap;margin-top:2px;">
-              ${c.purpose_category ? `<span class="thumb-badge" style="background:${getCatColor(c.purpose_category)}20; color:${getCatColor(c.purpose_category)};">${c.purpose_category.split(',')[0]}</span>` : ''}
-              ${c.work_type ? `<span class="thumb-badge">${c.work_type}</span>` : ''}
-              ${isAvailable ? `<span class="thumb-badge available">พร้อมทันที</span>` : ''}
-            </div>
+  <div class="thumb-card" data-cat="${primaryCat}" style="display: flex; flex-direction: column; height: 100%;" onclick="openModal('${c.id}')">
+    
+    <div style="flex: 1;">
+      <div class="thumb-img">${imgOrAvatar(c.photo_id)}</div>
+      <div class="thumb-info">
+        <div class="thumb-name">${c.firstname}<br>${c.lastname}</div>
+        <div class="thumb-purpose">${iDoGood.substring(0, 100)}</div>
+        <div class="thumb-meta">
+          ${c.expected_salary ? `<div class="thumb-meta-row">💰 ${c.expected_salary}</div>` : ''}
+          <div class="thumb-meta-row" style="gap:6px;flex-wrap:wrap;margin-top:2px;">
+            ${c.purpose_category ? `<span class="thumb-badge" style="background:${getCatColor(c.purpose_category)}20; color:${getCatColor(c.purpose_category)};">${c.purpose_category.split(',')[0]}</span>` : ''}
+            ${c.work_type ? `<span class="thumb-badge">${c.work_type}</span>` : ''}
+            ${isAvailable ? `<span class="thumb-badge available">พร้อมทันที</span>` : ''}
           </div>
         </div>
-        ${c.work_zone ? `<div class="line-workzone">📍 ${c.work_zone}</div>` : ''}
-        <div class="line-sentence">💬 ${iDoGood.substring(0, 80)}</div>
-      </div>`;
+      </div>
+    </div>
+
+    <div class="card-footer" style="margin-top: auto; padding-top: 10px;">
+      ${c.work_zone ? `<div class="line-workzone">📍 ${c.work_zone}</div>` : ''}
+      <div class="line-sentence">💬 ${iDoGood.substring(0, 80)}</div>
+    </div>
+  </div>`;
     }
   }).join('');
 
@@ -1513,16 +1519,16 @@ function showToast(msg) {
 // PAGINATION
 // ─────────────────────────────────────────────
 function renderPagination() {
-  const container = document.getElementById('pagination-container');
-  const totalPages = Math.ceil(filteredTalent.length / itemsPerPage);
-  
-  let html = `<button onclick="changePage(currentPage - 1)">Prev</button>`;
-  for(let i = 1; i <= totalPages; i++) {
-    html += `<button class="page-number ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
-  }
-  html += `<button onclick="changePage(currentPage + 1)">Next</button>`;
-  
-  container.innerHTML = html;
+    const container = document.getElementById('pagination-container');
+    const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
+    if (totalPages <= 1) { container.innerHTML = ''; return; } // ซ่อนถ้ามีหน้าเดียว
+    
+    let html = `<button onclick="changePage(currentPage - 1)">Prev</button>`;
+    for(let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-number ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+    }
+    html += `<button onclick="changePage(currentPage + 1)">Next</button>`;
+    container.innerHTML = html;
 }
 
 // View Toggle
@@ -1567,6 +1573,7 @@ function initFilters() {
 }
 // บังคับให้โหลดข้อมูลจาก Sheet ทันทีที่ DOM พร้อม
 document.addEventListener('DOMContentLoaded', async () => {
+  document.body.insertAdjacentHTML('beforeend', '<div id="loading" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; z-index:9999;">Loading...</div>');
   try {
     const res = await fetch(PROXY_URL);
     const data = await res.json();
@@ -1592,16 +1599,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderPagination();
       
       // ก้อนนี้สำคัญ: วาดหมวดหมู่จากข้อมูลที่โหลดมาเสร็จแล้ว
-      const cats = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];
-      buildTabs(cats);
+      setTimeout(() => {
+          const cats = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];
+          buildTabs(cats);
       
-      if (typeof initFilters === 'function') initFilters();
-      if (typeof initSearch === 'function') initSearch();
+          if (typeof initFilters === 'function') initFilters();
+          if (typeof initSearch === 'function') initSearch();
 
-      checkDeepLink();
-    }
+          checkDeepLink();
+      }, 500);
   } catch (err) {
     console.error("Load Failed:", err);
+    // กรณี Error ก็ต้องลบออกด้วย ไม่งั้น User จะค้างที่หน้า Loading
+    const loader = document.getElementById('loading');
+    if (loader) loader.remove();
   }
 });
 </script>

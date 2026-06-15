@@ -890,15 +890,13 @@
   }
 
   .pagination-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px 20px;
-    gap: 12px;
-    flex-wrap: wrap;
+    position: sticky;
+    bottom: 0;
+    background: var(--bg); /* ให้สีพื้นหลังทับเนื้อหาด้านล่างเวลาเลื่อน */
+    padding: 20px;
     border-top: 1px solid var(--border);
-    margin-top: 8px;
-    padding-top: 16px;
+    margin-top: auto; /* ดันให้อยู่ล่างสุดเสมอ */
+    z-index: 100;
   }
 </style>
 </head>
@@ -957,8 +955,6 @@
 
     <div id="cat-desc-bar" style="display:none;margin:0 16px 16px;padding:14px 16px;background:#fff;border-radius:12px;border-left:4px solid #000;font-size:13.5px;line-height:1.8;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
     <div class="grid card-view" id="grid"></div>
-
-    <div id="pagination-container" style="text-align:center; padding:20px; margin-top:20px;"></div>
   </div>
 </div>
 
@@ -1033,6 +1029,30 @@ function getCatColor(catName) {
 }
 
 // ─────────────────────────────────────────────
+// วิวแบบ Line
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const btnCard = document.getElementById('view-card');
+    const btnLine = document.getElementById('view-line');
+    const grid = document.getElementById('grid');
+
+    btnLine.addEventListener('click', () => {
+        grid.classList.add('line-view');
+        grid.classList.remove('card-view');
+        btnLine.classList.add('active');
+        btnCard.classList.remove('active');
+    });
+
+    btnCard.addEventListener('click', () => {
+        grid.classList.remove('line-view');
+        grid.classList.add('card-view');
+        btnCard.classList.add('active');
+        btnLine.classList.remove('active');
+    });
+});
+
+
+// ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
 let allTalent = [];
@@ -1104,6 +1124,7 @@ async function initData() {
     const data = await res.json();
     
     if (data && data.values && data.values.length > 0) {
+      // Mapping ข้อมูลตรงตามคอลัมน์ใน Google Sheet ของพี่เป๊ะๆ
       allTalent = data.values.map(r => ({
         id:              r[0]  || '',
         firstname:       r[1]  || '',
@@ -1132,14 +1153,15 @@ async function initData() {
         updated_date:    r[24] || ''
       }));
       
+      // กรองแถวว่างออก
       allTalent = allTalent.filter(t => t.id !== '');
       filteredTalent = [...allTalent];
       currentPage = 1; 
       
-      // วาดการ์ด
+      // 1. วาดการ์ด
       buildGrid(filteredTalent);
       
-      // วาด Tabs
+      // 2. สร้างหมวดหมู่ (Tabs)
       if (typeof buildTabs === 'function') {
           const categories = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];
           buildTabs(categories);
@@ -1148,8 +1170,6 @@ async function initData() {
       initFilters();
       initSearch();
       initViewToggle();
-      
-      // จบการทำงานด้วยการเช็ค Deep Link
       checkDeepLink();
     } else {
       if (grid) grid.innerHTML = '<div class="no-talent">No talent found.</div>';
@@ -1159,13 +1179,6 @@ async function initData() {
     if (grid) grid.innerHTML = `<div class="no-talent">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}</div>`;
   }
 }
-
-// ในช่วงท้ายของก้อนโหลดข้อมูล
-buildGrid(filteredTalent);
-buildTabs(categories);
-initFilters();
-initSearch();
-
 
 // Pagination Event Listeners
 const rowsPerPageSelect = document.getElementById('rowsPerPage');
@@ -1298,7 +1311,6 @@ function buildGrid(talent) {
   const end = start + rowsPerPage;
   const paginatedTalent = filteredTalent.slice(start, end);
 
-  // 1. ส่วนคำนวณและแสดง Bar หมวดหมู่ (ของเดิมพี่)
   const descBar = document.getElementById('cat-desc-bar');
   const activeCat = activeCategories.length === 1 && activeCategories[0] !== 'All' ? activeCategories[0] : null;
   if (descBar) {
@@ -1312,36 +1324,6 @@ function buildGrid(talent) {
       descBar.style.display = 'none';
     }
   }
-
-  // 2. ส่วนวาดรายการ Talent (ของเดิมพี่ที่ต้องมีอยู่แล้ว)
-  const grid = document.getElementById('grid');
-  // ... (โค้ดดึง paginatedTalent มา map สร้าง HTML การ์ด ของพี่วางตรงนี้ได้เลย) ...
-  // พี่ต้องมีโค้ด grid.innerHTML = paginatedTalent.map(...) อยู่ตรงนี้ครับ
-
-  // 3. 🔥 สั่งวาดเลขหน้า (สำคัญมาก ต้องใส่ตรงนี้)
-  buildPagination();
-}
-
-// ฟังก์ชันวาดเลขหน้า (วางต่อท้าย buildGrid ได้เลย)
-function buildPagination() {
-  const container = document.getElementById('pagination-container');
-  if (!container) return;
-  
-  const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
-  if (totalPages <= 1) { container.innerHTML = ''; return; }
-  
-  let html = '';
-  for (let i = 1; i <= totalPages; i++) {
-    html += `<button class="page-btn ${currentPage === i ? 'active' : ''}" 
-             onclick="goToPage(${i})">${i}</button>`;
-  }
-  container.innerHTML = html;
-}
-
-function goToPage(page) {
-  currentPage = page;
-  buildGrid(filteredTalent); 
-}
 
   const grid = document.getElementById('grid');
   if (paginatedTalent.length === 0) {
@@ -1482,57 +1464,42 @@ function closeLightbox() {
   document.getElementById('lightbox-overlay').classList.remove('open');
 }
 
-// 1. ฟังก์ชันแชร์ (แสดงข้อความสวยงามพร้อมลิงก์)
 async function shareProfile(id) {
   const c = allTalent.find(x => x.id === id);
   if (!c) return;
-  
-  const shareURL = `${window.location.origin}${window.location.pathname}?id=${id}`;
-  // จัดข้อความใหม่ให้ดูสะอาด
-  const shareText = `Recommended Talent: ${c.firstname} ${c.lastname} — ${c.i_do_good}
-View profile on Candi
-${shareURL}`;
-  
+
+  const shareURL  = `${window.location.href.split('?')[0]}?id=${id}`;
+
+  const shareText = `Recommended Talent: ${c.firstname} ${c.lastname} — ${c.i_do_good}\nView profile on CANDI`;
   if (navigator.share) {
-    try { 
-      await navigator.share({ 
-        title: `${c.firstname} ${c.lastname}`, 
-        text: shareText, 
-      }); 
-    } catch(e) { console.error(e); }
+    try { await navigator.share({ title: `${c.firstname} ${c.lastname}`, text: shareText, url: shareURL }); } catch(e) {}
   } else {
     try {
-      await navigator.clipboard.writeText(shareText);
-      alert('คัดลอกข้อมูลเรียบร้อยแล้ว!');
-    } catch(e) { alert('คัดลอกไม่สำเร็จ'); }
+      await navigator.clipboard.writeText(`${shareText}\n${shareURL}`);
+      showToast('Link copied ✓');
+    } catch(e) { showToast('Copy failed. Please copy URL manually.'); }
   }
 }
 
-// 2. ฟังก์ชัน Deep Link (มี setTimeout รอข้อมูลโหลด)
+// แก้ไขฟังก์ชันนี้
 function checkDeepLink() {
   const params = new URLSearchParams(window.location.search);
-  const talentId = params.get('id');
+  const id = params.get('id');
   
-  if (talentId) {
-    // ใช้ setInterval คอยเช็คว่า allTalent มาหรือยัง ถ้ายังไม่มาให้รอ
+  if (id) {
+    // เพิ่มการเช็คว่ามีข้อมูลใน allTalent หรือยัง
     const interval = setInterval(() => {
-      if (typeof allTalent !== 'undefined' && allTalent.length > 0) {
-        clearInterval(interval); // เจอข้อมูลแล้ว หยุดรอ
-        const targetTalent = allTalent.find(t => t.id === talentId);
-        if (targetTalent) {
-          openModal(targetTalent.id);
-        } else {
-          console.log("ไม่พบข้อมูล Talent ID นี้");
-        }
+      if (allTalent.length > 0) {
+        clearInterval(interval);
+        openModal(id);
       }
-    }, 200); // เช็คทุก 0.2 วินาที
+    }, 100);
     
-    // กันเหนียว: ถ้าผ่านไป 5 วินาทีแล้วยังโหลดไม่เสร็จ ให้เลิกพยายาม
+    // ตั้ง timeout เพื่อกัน loop ไม่รู้จบ
     setTimeout(() => clearInterval(interval), 5000);
   }
 }
 
-// 3. ฟังก์ชันเสริมเปิดหน้าต่างใหม่
 function openLink(url) { window.open(url, '_blank'); }
 
 function showToast(msg) {
@@ -1540,6 +1507,22 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────────────
+// PAGINATION
+// ─────────────────────────────────────────────
+function renderPagination() {
+  const container = document.getElementById('pagination-container');
+  const totalPages = Math.ceil(filteredTalent.length / itemsPerPage);
+  
+  let html = `<button onclick="changePage(currentPage - 1)">Prev</button>`;
+  for(let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-number ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+  }
+  html += `<button onclick="changePage(currentPage + 1)">Next</button>`;
+  
+  container.innerHTML = html;
 }
 
 // View Toggle
@@ -1574,8 +1557,9 @@ function initViewToggle() {
   setView(savedView);
 }
 
-// บรรทัดเดียวจบ ไม่ต้องมีฟังก์ชันครอบซ้อน
-window.onload = initData;
+function init() {
+  initData(); // ดึงข้อมูลจาก Google Sheet
+}
 
 function initFilters() {
   // ฟังก์ชันช่วยเคลียร์และเตรียมระบบฟิลเตอร์
@@ -1600,7 +1584,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       })).filter(t => t.id !== '');
       
       filteredTalent = [...allTalent];
-
+      
+      // สั่งทำงานตามลำดับ 1-2-3
+      buildGrid(filteredTalent);
+      
+      // วางปุ่มเลขหน้า
+      renderPagination();
       
       // ก้อนนี้สำคัญ: วาดหมวดหมู่จากข้อมูลที่โหลดมาเสร็จแล้ว
       const cats = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];
@@ -1608,11 +1597,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       if (typeof initFilters === 'function') initFilters();
       if (typeof initSearch === 'function') initSearch();
+
+      checkDeepLink();
     }
   } catch (err) {
     console.error("Load Failed:", err);
   }
 });
 </script>
+<div id="pagination-container" class="pagination-container"></div>
 </body>
 </html>

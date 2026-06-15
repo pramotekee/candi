@@ -1081,9 +1081,7 @@ function shuffleArray(array) {
 
 // FETCH
 async function fetchFromSheet(range) {
-  const cacheBuster = `&_=${Date.now()}`;
-  const targetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}${cacheBuster}`;
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+  const proxyUrl = `https://script.google.com/macros/s/AKfycbxzGSrhcnHKykWEFtGhlntdjKdWbmmnhltSCrRe_G6UsunPgJJ9nVB073LX422FN7Mp/exec`;
   const res = await fetch(proxyUrl);
   const json = await res.json();
   return json.values || [];

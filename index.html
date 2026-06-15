@@ -1507,7 +1507,36 @@ function initFilters() {
   // ฟังก์ชันช่วยเคลียร์และเตรียมระบบฟิลเตอร์
   handleFilterChange();
 }
-(() => { init(); })();
+// บังคับให้โหลดข้อมูลจาก Sheet ทันทีที่ DOM พร้อม
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await fetch(PROXY_URL);
+    const data = await res.json();
+    
+    if (data && data.values) {
+      allTalent = data.values.map(r => ({
+        id: r[0] || '', firstname: r[1] || '', lastname: r[2] || '', photo_id: r[3] || '',
+        description: r[4] || '', i_do_good: r[5] || '', experience: r[6] || '',
+        skill_tags: r[7] || '', language: r[8] || '', work_type: r[9] || '',
+        expected_salary: r[10] || '', available_date: r[11] || '', contact_phone: r[12] || '',
+        contact_line: r[13] || '', contact_email: r[14] || '', work_zone: r[15] || '',
+        youtube: r[16] || '', instagram: r[17] || '', tiktok: r[18] || '',
+        status: r[19] || 'FALSE', purpose_category: r[20] || '', resume: r[21] || '',
+        edit_code: r[22] || '', create_date: r[23] || '', updated_date: r[24] || ''
+      })).filter(t => t.id !== '');
+      
+      filteredTalent = [...allTalent];
+      
+      // สั่งงานระบบให้แสดงผล
+      buildGrid(filteredTalent);
+      if (typeof initFilters === 'function') initFilters();
+      if (typeof initSearch === 'function') initSearch();
+      if (typeof initViewToggle === 'function') initViewToggle();
+    }
+  } catch (err) {
+    console.error("Load Failed:", err);
+  }
+});
 </script>
 </body>
 </html>

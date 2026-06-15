@@ -1140,6 +1140,17 @@ async function initData() {
       
       // รันคำสั่งทำงานหน้าจอตามระบบเดิมของพี่
       buildGrid(filteredTalent);
+
+      // 📍 เพิ่มบรรทัดนี้เพื่อวาดเมนูหมวดหมู่ (Categories)
+      if (typeof buildTabs === 'function') {
+         // สร้างรายชื่อหมวดหมู่จากข้อมูลจริง
+         const categories = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];
+         buildTabs(categories);
+      }
+      
+      initFilters();
+      initSearch();
+
       initFilters();
       initSearch();
       initViewToggle();
@@ -1166,6 +1177,7 @@ if (rowsPerPageSelect) {
 // BUILD TABS
 function buildTabs(categories) {
   const wrapper = document.getElementById('tabs-wrapper');
+  if (!wrapper) return;
   wrapper.innerHTML = categories.map(cat => {
     const isAll = cat === "All";
     return `<button class="tab-btn ${isAll ? 'active' : ''}" id="tab-${cat}" data-cat="${cat}" onclick="handleTabClick('${cat}')">${cat}</button>`;

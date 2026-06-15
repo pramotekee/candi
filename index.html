@@ -1112,7 +1112,7 @@ async function initData() {
         description:     r[4]  || '',
         i_do_good:       r[5]  || '',
         experience:      r[6]  || '',
-        skill_tags:      r[7]  ? r[7].split(',').map(s => s.trim()) : [], // แปลง String ทักษะเป็น Array เพื่อให้ระบบลูปสร้างแท็กได้
+        skill_tags:      r[7]  || '', // แก้กลับมาเป็น String เพื่อไม่ให้ระบบพัง
         language:        r[8]  || '',
         work_type:       r[9]  || '',
         expected_salary: r[10] || '',

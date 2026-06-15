@@ -507,19 +507,19 @@
         <div class="error-msg" id="resumeError"></div>
       </div>
 
-      <button type="submit" class="btn-submit">สร้างโปรไฟล์</button>
+      <button type="submit" class="btn-submit">Publish Profile</button>
     </form>
   </div>
 </div>
 
 <div class="popup-overlay" id="popupOverlay">
   <div class="popup">
-    <h3>🎉 สร้างโปรไฟล์สำเร็จ!</h3>
+    <h3>🎉 Your profile is now live.</h3>
     <p>รหัสแก้ไขของคุณคือ</p>
     <div class="code-box" id="editCodeDisplay"></div>
-    <p style="font-size:12px;">⚠️ กรุณาบันทึกรหัสนี้ไว้ หากหายจะไม่สามารถแก้ไขข้อมูลได้</p>
-    <button class="copy-btn" id="copyCodeBtn">📋 คัดลอกรหัส</button>
-    <button class="home-btn" id="backHomeBtn">กลับหน้าหลัก</button>
+    <p style="font-size:12px;">⚠️ Please save this code. If you lose it, you won’t be able to edit your profile information.</p>
+    <button class="copy-btn" id="copyCodeBtn">📋 Copy Code</button>
+    <button class="home-btn" id="backHomeBtn">Back to Home </button>
   </div>
 </div>
 
@@ -644,31 +644,31 @@
     const languages = Array.from(document.querySelectorAll('#langContainer .lang-input')).map(inp => inp.value.trim()).filter(v => v);
 
     if (!firstname || !lastname || !photo || !ido || !desc || !exp || !salary || !available || !zone || !resume) {
-      alert('กรุณากรอกข้อมูลให้ครบทุกช่องที่มี *');
+      alert('Please complete all required fields (*).');
       return;
     }
     if (selectedCaps.length === 0) {
-      alert('กรุณาเลือก Capability อย่างน้อย 1 หมวด');
+      alert('Please select at least one capability.');
       return;
     }
     if (selectedWorkTypes.length === 0) {
-      alert('กรุณาเลือกรูปแบบงานอย่างน้อย 1 แบบ');
+      alert('Please select at least one work preference.');
       return;
     }
     if (skillTags.length === 0) {
-      alert('กรุณากรอกทักษะอย่างน้อย 1 อย่าง');
+      alert('Please enter at least one skill.');
       return;
     }
     if (languages.length === 0) {
-      alert('กรุณากรอกภาษาอย่างน้อย 1 ภาษา');
+      alert('Please enter at least one language.');
       return;
     }
     if (!isValidUrl(photo)) {
-      showFieldError('photoError', 'URL รูปภาพไม่ถูกต้อง');
+      showFieldError('photoError', 'Invalid image URL. Please try again.');
       return;
     }
     if (!isValidUrl(resume)) {
-      showFieldError('resumeError', 'URL Resume ไม่ถูกต้อง');
+      showFieldError('resumeError', 'Invalid resume URL. Please try again.');
       return;
     }
 
@@ -716,14 +716,14 @@
   
       document.getElementById('copyCodeBtn').onclick = () => {
         navigator.clipboard.writeText(editCode);
-        alert('คัดลอกรหัสแล้ว');
+        alert('Code copied. Keep it somewhere safe.');
       };
       document.getElementById('backHomeBtn').onclick = () => {
         window.location.href = 'index.html';
       };
   
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      alert('An error occurred. Please try again.: ' + err.message);
     }
   });
 </script>

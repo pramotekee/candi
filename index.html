@@ -1166,8 +1166,6 @@ buildTabs(categories);
 initFilters();
 initSearch();
 
-// 🔥 เพิ่มบรรทัดนี้ลงไป (ต้องวางไว้หลังสุดเพื่อให้มั่นใจว่าข้อมูลโหลดครบแล้ว)
-checkDeepLink();
 
 // Pagination Event Listeners
 const rowsPerPageSelect = document.getElementById('rowsPerPage');
@@ -1500,7 +1498,6 @@ ${shareURL}`;
       await navigator.share({ 
         title: `${c.firstname} ${c.lastname}`, 
         text: shareText, 
-        url: shareURL 
       }); 
     } catch(e) { console.error(e); }
   } else {
@@ -1517,14 +1514,21 @@ function checkDeepLink() {
   const talentId = params.get('id');
   
   if (talentId) {
-    setTimeout(() => {
-      const targetTalent = allTalent.find(t => t.id === talentId);
-      if (targetTalent) {
-        openModal(targetTalent.id);
-      } else {
-        console.log("ไม่พบข้อมูล Talent ID นี้");
+    // ใช้ setInterval คอยเช็คว่า allTalent มาหรือยัง ถ้ายังไม่มาให้รอ
+    const interval = setInterval(() => {
+      if (typeof allTalent !== 'undefined' && allTalent.length > 0) {
+        clearInterval(interval); // เจอข้อมูลแล้ว หยุดรอ
+        const targetTalent = allTalent.find(t => t.id === talentId);
+        if (targetTalent) {
+          openModal(targetTalent.id);
+        } else {
+          console.log("ไม่พบข้อมูล Talent ID นี้");
+        }
       }
-    }, 500); 
+    }, 200); // เช็คทุก 0.2 วินาที
+    
+    // กันเหนียว: ถ้าผ่านไป 5 วินาทีแล้วยังโหลดไม่เสร็จ ให้เลิกพยายาม
+    setTimeout(() => clearInterval(interval), 5000);
   }
 }
 
@@ -1570,9 +1574,8 @@ function initViewToggle() {
   setView(savedView);
 }
 
-function init() {
-  initData(); // ดึงข้อมูลจาก Google Sheet
-}
+// บรรทัดเดียวจบ ไม่ต้องมีฟังก์ชันครอบซ้อน
+window.onload = initData;
 
 function initFilters() {
   // ฟังก์ชันช่วยเคลียร์และเตรียมระบบฟิลเตอร์
@@ -1597,9 +1600,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       })).filter(t => t.id !== '');
       
       filteredTalent = [...allTalent];
-      
-      // สั่งทำงานตามลำดับ 1-2-3
-      buildGrid(filteredTalent);
+
       
       // ก้อนนี้สำคัญ: วาดหมวดหมู่จากข้อมูลที่โหลดมาเสร็จแล้ว
       const cats = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];

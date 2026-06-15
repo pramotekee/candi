@@ -1102,7 +1102,7 @@ async function initData() {
     const data = await res.json();
     
     if (data && data.values && data.values.length > 0) {
-      // Mapping ข้อมูลตรงตามคอลัมน์ใน Google Sheet ของพี่เป๊ะๆ 100%
+      // Mapping ข้อมูลตรงตามคอลัมน์ใน Google Sheet ของพี่เป๊ะๆ
       allTalent = data.values.map(r => ({
         id:              r[0]  || '',
         firstname:       r[1]  || '',
@@ -1111,7 +1111,7 @@ async function initData() {
         description:     r[4]  || '',
         i_do_good:       r[5]  || '',
         experience:      r[6]  || '',
-        skill_tags:      r[7]  || '', // แก้กลับมาเป็น String เพื่อไม่ให้ระบบพัง
+        skill_tags:      r[7]  || '',
         language:        r[8]  || '',
         work_type:       r[9]  || '',
         expected_salary: r[10] || '',
@@ -1131,25 +1131,19 @@ async function initData() {
         updated_date:    r[24] || ''
       }));
       
-      // กรองแถวว่างที่ไม่มี id ออก
+      // กรองแถวว่างออก
       allTalent = allTalent.filter(t => t.id !== '');
-      
-      // อัปเดต State ข้อมูลเริ่มต้นสำหรับการแบ่งหน้าและฟิลเตอร์
       filteredTalent = [...allTalent];
       currentPage = 1; 
       
-      // รันคำสั่งทำงานหน้าจอตามระบบเดิมของพี่
+      // 1. วาดการ์ด
       buildGrid(filteredTalent);
-
-      // 📍 เพิ่มบรรทัดนี้เพื่อวาดเมนูหมวดหมู่ (Categories)
-      if (typeof buildTabs === 'function') {
-         // สร้างรายชื่อหมวดหมู่จากข้อมูลจริง
-         const categories = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];
-         buildTabs(categories);
-      }
       
-      initFilters();
-      initSearch();
+      // 2. สร้างหมวดหมู่ (Tabs)
+      if (typeof buildTabs === 'function') {
+          const categories = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];
+          buildTabs(categories);
+      }
 
       initFilters();
       initSearch();

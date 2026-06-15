@@ -859,6 +859,35 @@
   .grid.line-view .thumb-card[data-cat="Hands-on Maker"]       { border-color: var(--cat-maker); }
   .grid.line-view .thumb-card[data-cat="Path Guide"]           { border-color: var(--cat-pathguide); }
 
+  /* Pagination number buttons */
+  .page-number {
+    background: var(--tag-bg);
+    border: none;
+    border-radius: 30px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.15s;
+  }
+  .page-number:hover {
+    background: var(--border);
+  }
+  .page-number.active {
+    background: var(--accent);
+    color: white;
+    cursor: default;
+  }
+  .page-number.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .page-dots {
+    padding: 6px 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
 </style>
 </head>
 <body>
@@ -899,27 +928,23 @@
       <button id="view-line" class="view-toggle-btn">≡ Line</button>
     </div>
     <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px 20px; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px;">
-  <div style="display: flex; align-items: center; gap: 12px;">
-    <span style="font-size: 13px; color: var(--text-secondary);">Show</span>
-    <select id="rowsPerPage" class="sort-select" style="width: auto; background: var(--surface);">
-      <option value="25">25</option>
-      <option value="50">50</option>
-      <option value="100" selected>100</option>
-      <option value="200">200</option>
-      <option value="500">500</option>
-    </select>
-    <span style="font-size: 13px; color: var(--text-secondary);">entries</span>
-  </div>
-  <div style="display: flex; gap: 8px; align-items: center;">
-    <button id="prevPageBtn" class="zone-btn" style="background: var(--tag-bg);" disabled>← Prev</button>
-    <span id="pageInfo" style="font-size: 13px; color: var(--text-primary); background: var(--tag-bg); padding: 6px 14px; border-radius: 30px;">Page 1 of 1</span>
-    <button id="nextPageBtn" class="zone-btn" style="background: var(--tag-bg);" disabled>Next →</button>
-  </div>
-</div>   
-    <div id="cat-desc-bar" style="display:none;margin:0 16px 16px;padding:14px 16px;background:#fff;border-radius:12px;border-left:4px solid #000;font-size:13.5px;line-height:1.8;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 13px; color: var(--text-secondary);">Show</span>
+        <select id="rowsPerPage" class="sort-select" style="width: auto; background: var(--surface);">
+          <option value="50">50</option>
+          <option value="100" selected>100</option>
+          <option value="200">200</option>
+          <option value="500">500</option>
+        </select>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <div id="pageNumbers" style="display: flex; gap: 6px; align-items: center;"></div>
+      </div>
+     </div>
+
+     <div id="cat-desc-bar" style="display:none;margin:0 16px 16px;padding:14px 16px;background:#fff;border-radius:12px;border-left:4px solid #000;font-size:13.5px;line-height:1.8;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
     <div class="grid card-view" id="grid"></div>
-  </div>
-</div>
+
 
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
   <div class="modal" id="modal">
@@ -1281,14 +1306,72 @@ function buildGrid(talent) {
       </div>`;
     }
   }).join('');
+
+  renderPageNumbers();
   
   // อัปเดต Pagination Controls
   document.getElementById('prevPageBtn').disabled = currentPage === 1;
   document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
-  document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
   
   // เก็บ currentView
   currentView = grid.classList.contains('card-view') ? 'card' : 'line';
+}
+
+function renderPageNumbers() {
+  const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
+  const container = document.getElementById('pageNumbers');
+  if (!container) return;
+  
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+  
+  let html = '';
+  const maxVisible = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+  
+  if (endPage - startPage + 1 < maxVisible) {
+    startPage = Math.max(1, endPage - maxVisible + 1);
+  }
+  
+  // < ปุ่ม
+  if (currentPage > 1) {
+    html += `<button class="page-number" data-page="${currentPage - 1}">‹</button>`;
+  } else {
+    html += `<button class="page-number disabled" disabled>‹</button>`;
+  }
+  
+  // แสดงเลขหน้า
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= startPage && i <= endPage)) {
+      const activeClass = i === currentPage ? 'active' : '';
+      html += `<button class="page-number ${activeClass}" data-page="${i}">${i}</button>`;
+    } else if (i === startPage - 1 || i === endPage + 1) {
+      html += `<span class="page-dots">...</span>`;
+    }
+  }
+  
+  // > ปุ่ม
+  if (currentPage < totalPages) {
+    html += `<button class="page-number" data-page="${currentPage + 1}">›</button>`;
+  } else {
+    html += `<button class="page-number disabled" disabled>›</button>`;
+  }
+  
+  container.innerHTML = html;
+  
+  document.querySelectorAll('.page-number[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const page = parseInt(btn.dataset.page, 10);
+      if (page !== currentPage && !isNaN(page)) {
+        currentPage = page;
+        buildGrid(filteredTalent);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  });
 }
 
 // ฟังค์ชั่นควบคุม Pagination

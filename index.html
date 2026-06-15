@@ -1532,11 +1532,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       filteredTalent = [...allTalent];
       
-      // สั่งงานระบบให้แสดงผล
+      // สั่งทำงานตามลำดับ 1-2-3
       buildGrid(filteredTalent);
+      
+      // ก้อนนี้สำคัญ: วาดหมวดหมู่จากข้อมูลที่โหลดมาเสร็จแล้ว
+      const cats = ["All", ...new Set(allTalent.map(t => t.purpose_category).filter(c => c))];
+      buildTabs(cats);
+      
       if (typeof initFilters === 'function') initFilters();
       if (typeof initSearch === 'function') initSearch();
-      if (typeof initViewToggle === 'function') initViewToggle();
     }
   } catch (err) {
     console.error("Load Failed:", err);

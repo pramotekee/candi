@@ -1083,8 +1083,30 @@ function shuffleArray(array) {
 async function fetchFromSheet(range) {
   const proxyUrl = `https://script.google.com/macros/s/AKfycbxxgYwAgoEt4l-DiFL8rvD1KrLvFxASQ0L1F7oqwQo4vLp2g3CGQNWaMTRgsp5ZuEybSw/exec`;
   const res = await fetch(proxyUrl);
-  const json = await res.json();
-  return json.values || [];
+  const data = await res.json();
+  
+  // ถ้า data เป็น array (ไม่มี key 'values')
+  let rows = Array.isArray(data) ? data : (data.values || []);
+  
+  if (rows.length === 0) return [];
+  
+  // กำหนด header ตามคอลัมน์ในชีตของคุณ
+  const headers = [
+    'id', 'firstname', 'lastname', 'photo_id', 'description', 'i_do_good',
+    'experience', 'skill_tags', 'language', 'work_type', 'expected_salary',
+    'available_date', 'contact_phone', 'contact_line', 'contact_email',
+    'work_zone', 'youtube', 'instagram', 'tiktok', 'status',
+    'purpose_category', 'resume', 'edit_code', 'create_date', 'updated_date'
+  ];
+  
+  // แปลงแต่ละแถวให้เป็น object
+  return rows.map(row => {
+    let obj = {};
+    headers.forEach((h, i) => {
+      obj[h] = row[i] || '';
+    });
+    return obj;
+  });
 }
 
 async function initData() {

@@ -1034,6 +1034,7 @@ function getCatColor(catName) {
 // STATE
 // ─────────────────────────────────────────────
 let allTalent = [];
+let filteredTalent = [];
 let activeCategories = ["All"];
 let currentPage = 1;
 let rowsPerPage = 100;
@@ -1493,7 +1494,15 @@ function initViewToggle() {
   setView(savedView);
 }
 
-(() => { initData(); })();
+function init() {
+  initData(); // ดึงข้อมูลจาก Google Sheet
+}
+
+function initFilters() {
+  // ฟังก์ชันช่วยเคลียร์และเตรียมระบบฟิลเตอร์
+  handleFilterChange();
+}
+(() => { init(); })();
 </script>
 </body>
 </html>

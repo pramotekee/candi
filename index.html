@@ -898,6 +898,24 @@
       <button id="view-card" class="view-toggle-btn active">▦ Card</button>
       <button id="view-line" class="view-toggle-btn">≡ Line</button>
     </div>
+    <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px 20px; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 16px;">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span style="font-size: 13px; color: var(--text-secondary);">Show</span>
+    <select id="rowsPerPage" class="sort-select" style="width: auto; background: var(--surface);">
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100" selected>100</option>
+      <option value="200">200</option>
+      <option value="500">500</option>
+    </select>
+    <span style="font-size: 13px; color: var(--text-secondary);">entries</span>
+  </div>
+  <div style="display: flex; gap: 8px; align-items: center;">
+    <button id="prevPageBtn" class="zone-btn" style="background: var(--tag-bg);" disabled>← Prev</button>
+    <span id="pageInfo" style="font-size: 13px; color: var(--text-primary); background: var(--tag-bg); padding: 6px 14px; border-radius: 30px;">Page 1 of 1</span>
+    <button id="nextPageBtn" class="zone-btn" style="background: var(--tag-bg);" disabled>Next →</button>
+  </div>
+</div>   
     <div id="cat-desc-bar" style="display:none;margin:0 16px 16px;padding:14px 16px;background:#fff;border-radius:12px;border-left:4px solid #000;font-size:13.5px;line-height:1.8;box-shadow:0 2px 8px rgba(0,0,0,0.06);"></div>
     <div class="grid card-view" id="grid"></div>
   </div>
@@ -998,6 +1016,10 @@ const MOCK_CATS = ["All","System Architect","Conversation Builder","Revenue Gene
 // STATE
 let allTalent = [];
 let activeCategories = ["All"];
+let currentPage = 1;
+let rowsPerPage = 100;
+let filteredTalent = [];
+let currentView = 'card'; // 'card' หรือ 'line'
 
 // HELPERS
 function photoURL(photo_id) {
@@ -1096,6 +1118,21 @@ async function initData() {
   }
 }
 
+// Pagination Event Listeners
+const rowsPerPageSelect = document.getElementById('rowsPerPage');
+const prevBtn = document.getElementById('prevPageBtn');
+const nextBtn = document.getElementById('nextPageBtn');
+
+if (rowsPerPageSelect) {
+  rowsPerPageSelect.addEventListener('change', (e) => {
+    rowsPerPage = parseInt(e.target.value, 10);
+    currentPage = 1;
+    buildGrid(filteredTalent);
+  });
+}
+if (prevBtn) prevBtn.addEventListener('click', goPrevPage);
+if (nextBtn) nextBtn.addEventListener('click', goNextPage);
+
 // BUILD TABS
 function buildTabs(categories) {
   const wrapper = document.getElementById('tabs-wrapper');
@@ -1114,6 +1151,7 @@ function handleTabClick(cat) {
 
 // FILTER
 function handleFilterChange() {
+  currentPage = 1;
   const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
   const alphabetVal = document.getElementById('sort-select').value;
 
@@ -1159,6 +1197,17 @@ function handleFilterChange() {
 
 // BUILD GRID
 function buildGrid(talent) {
+  filteredTalent = talent; // เก็บ filtered ไว้ใช้ paginate
+  
+  const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
+  // ปรับ currentPage ถ้าเกิน
+  if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+  
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginatedTalent = filteredTalent.slice(start, end);
+
   const descBar = document.getElementById('cat-desc-bar');
   const activeCat = activeCategories.length === 1 && activeCategories[0] !== 'All' ? activeCategories[0] : null;
   if (descBar) {
@@ -1172,35 +1221,99 @@ function buildGrid(talent) {
       descBar.style.display = 'none';
     }
   }
+
   const grid = document.getElementById('grid');
-  if (talent.length === 0) {
+  if (paginatedTalent.length === 0) {
     grid.innerHTML = '<p style="color:#6E6E73;grid-column:1/-1;text-align:center;padding:60px 0;font-size:14px;">No talent found.</p>';
+    document.getElementById('prevPageBtn').disabled = true;
+    document.getElementById('nextPageBtn').disabled = true;
+    document.getElementById('pageInfo').innerText = `Page 0 of 0`;
     return;
   }
-  grid.innerHTML = talent.map(c => {
+
+  // เลือกการแสดงผลตาม View
+  const isCardView = grid.classList.contains('card-view');
+  
+  grid.innerHTML = paginatedTalent.map(c => {
     const primaryCat = c.purpose_category ? c.purpose_category.split(',')[0].trim() : '';
     const isAvailable = (c.available_date || '').includes('ทันที') || (c.available_date || '').toLowerCase().includes('now');
     const iDoGood = c.i_do_good || c.purpose_tag || '';
-    return `
-    <div class="thumb-card" data-cat="${primaryCat}" onclick="openModal('${c.id}')">
-      <div class="thumb-img">${imgOrAvatar(c.photo_id)}</div>
-      <div class="thumb-info">
-        <div class="thumb-name">${c.firstname}<br>${c.lastname}</div>
-        <div class="thumb-purpose">${iDoGood}</div>
-        <div class="thumb-meta">
-          ${c.expected_salary ? `<div class="thumb-meta-row">💰 ${c.expected_salary}</div>` : ''}
-          <div class="thumb-meta-row" style="gap:6px;flex-wrap:wrap;margin-top:2px;">
-            ${c.purpose_category ? `<span class="thumb-badge" style="background:${getCatColor(c.purpose_category)}20; color:${getCatColor(c.purpose_category)};">${c.purpose_category.split(',')[0]}</span>` : ''}
-            ${c.work_type ? `<span class="thumb-badge">${c.work_type}</span>` : ''}
-            ${isAvailable ? `<span class="thumb-badge available">พร้อมทันที</span>` : ''}
+    
+    if (isCardView) {
+      // Card View
+      return `
+      <div class="thumb-card" data-cat="${primaryCat}" onclick="openModal('${c.id}')">
+        <div class="thumb-img">${imgOrAvatar(c.photo_id)}</div>
+        <div class="thumb-info">
+          <div class="thumb-name">${c.firstname}<br>${c.lastname}</div>
+          <div class="thumb-purpose">${iDoGood}</div>
+          <div class="thumb-meta">
+            ${c.expected_salary ? `<div class="thumb-meta-row">💰 ${c.expected_salary}</div>` : ''}
+            <div class="thumb-meta-row" style="gap:6px;flex-wrap:wrap;margin-top:2px;">
+              ${c.purpose_category ? `<span class="thumb-badge" style="background:${getCatColor(c.purpose_category)}20; color:${getCatColor(c.purpose_category)};">${c.purpose_category.split(',')[0]}</span>` : ''}
+              ${c.work_type ? `<span class="thumb-badge">${c.work_type}</span>` : ''}
+              ${isAvailable ? `<span class="thumb-badge available">พร้อมทันที</span>` : ''}
+            </div>
           </div>
         </div>
-      </div>
-      ${c.work_zone ? `<div class="workzone">📍 ${c.work_zone}</div>` : ''}
-      <div class="line-sentence">💬 ${iDoGood}</div>
-    </div>`;
+        ${c.work_zone ? `<div class="workzone">📍 ${c.work_zone}</div>` : ''}
+        <div class="line-sentence">💬 ${iDoGood}</div>
+      </div>`;
+    } else {
+      // Line View
+      return `
+      <div class="thumb-card" data-cat="${primaryCat}" onclick="openModal('${c.id}')">
+        <div class="thumb-img">${imgOrAvatar(c.photo_id)}</div>
+        <div class="thumb-info">
+          <div class="thumb-name">${c.firstname}<br>${c.lastname}</div>
+          <div class="thumb-purpose">${iDoGood}</div>
+          <div class="thumb-meta">
+            ${c.expected_salary ? `<div class="thumb-meta-row">💰 ${c.expected_salary}</div>` : ''}
+            <div class="thumb-meta-row" style="gap:6px;flex-wrap:wrap;margin-top:2px;">
+              ${c.purpose_category ? `<span class="thumb-badge" style="background:${getCatColor(c.purpose_category)}20; color:${getCatColor(c.purpose_category)};">${c.purpose_category.split(',')[0]}</span>` : ''}
+              ${c.work_type ? `<span class="thumb-badge">${c.work_type}</span>` : ''}
+              ${isAvailable ? `<span class="thumb-badge available">พร้อมทันที</span>` : ''}
+            </div>
+          </div>
+        </div>
+        ${c.work_zone ? `<div class="line-workzone">📍 ${c.work_zone}</div>` : ''}
+        <div class="line-sentence">💬 ${iDoGood}</div>
+      </div>`;
+    }
   }).join('');
+  
+  // อัปเดต Pagination Controls
+  document.getElementById('prevPageBtn').disabled = currentPage === 1;
+  document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+  document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+  
+  // เก็บ currentView
+  currentView = grid.classList.contains('card-view') ? 'card' : 'line';
 }
+
+// ฟังค์ชั่นควบคุม Pagination
+function updatePagination() {
+  currentPage = 1;
+  buildGrid(filteredTalent);
+}
+
+function goPrevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    buildGrid(filteredTalent);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function goNextPage() {
+  const totalPages = Math.ceil(filteredTalent.length / rowsPerPage);
+  if (currentPage < totalPages) {
+    currentPage++;
+    buildGrid(filteredTalent);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
 
 // MODAL
 let currentId = null;
@@ -1335,6 +1448,8 @@ function initViewToggle() {
       cardBtn.classList.add('active');
       localStorage.setItem('candi_view', 'card');
     }
+    // รีเฟรช grid หลังจากเปลี่ยน view
+    if (filteredTalent) buildGrid(filteredTalent);
   }
   
   cardBtn.addEventListener('click', () => setView('card'));
